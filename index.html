@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Repossessed · VEMO</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{--teal:#11ABAB;--forest:#1F5556;--gray:#A6A6A6;--light:#F2F2F2;--white:#FFFFFF;--text:#1a2424;--text2:#4a6060;--text3:#8a9a9a;--red:#c0392b;--green:#1a7a4a;--amber:#d4830a;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Space Grotesk',sans-serif;background:var(--light);color:var(--text);min-height:100vh;}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:28px;background:var(--teal);z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:20px 0;}
+.sidebar-label{font-size:8px;font-weight:700;color:#fff;letter-spacing:.22em;text-transform:uppercase;writing-mode:vertical-rl;transform:rotate(180deg);}
+.sidebar-dot{width:8px;height:8px;border-radius:50%;background:var(--forest);}
+.sidebar-bottom{font-size:7px;color:rgba(255,255,255,.6);writing-mode:vertical-rl;transform:rotate(180deg);letter-spacing:.12em;text-transform:uppercase;}
+.page{margin-left:28px;padding:0 40px 60px 40px;max-width:1400px;}
+.page-header{display:flex;align-items:center;justify-content:space-between;padding:24px 0 20px;border-bottom:1px solid rgba(31,85,86,.15);margin-bottom:28px;flex-wrap:wrap;gap:12px;}
+.header-left{display:flex;align-items:center;gap:14px;}
+.vemo-wordmark{font-size:22px;font-weight:800;color:var(--forest);letter-spacing:.06em;}
+.header-divider{width:1px;height:28px;background:rgba(31,85,86,.2);}
+.header-subtitle{font-size:12px;color:var(--text2);font-weight:500;}
+.header-right{display:flex;align-items:center;gap:10px;}
+.badge-period{font-size:11px;color:var(--teal);background:rgba(17,171,171,.08);border:1px solid rgba(17,171,171,.3);border-radius:20px;padding:5px 14px;font-weight:500;}
+.badge-conf{font-size:9px;color:var(--text3);border:1px solid var(--gray);border-radius:3px;padding:4px 10px;letter-spacing:.1em;text-transform:uppercase;}
+.section-head{background:var(--forest);color:#fff;font-size:13px;font-weight:700;padding:10px 18px;border-radius:5px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
+.section-head-light{border-left:4px solid var(--teal);padding:8px 14px;font-size:12px;font-weight:700;color:var(--forest);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.section-note{font-size:10px;color:rgba(255,255,255,.65);font-weight:400;}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border:1px solid rgba(31,85,86,.15);border-radius:6px;overflow:hidden;margin-bottom:16px;}
+.kpi-card{background:var(--white);padding:20px 18px;border-right:1px solid rgba(31,85,86,.1);transition:background .15s;}
+.kpi-card:last-child{border-right:none;}
+.kpi-card:hover{background:rgba(17,171,171,.04);}
+.kpi-label{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;}
+.kpi-value{font-size:32px;font-weight:800;color:var(--forest);line-height:1;margin-bottom:4px;}
+.kpi-sub{font-size:11px;color:var(--text3);}
+.kpi-bar{height:3px;border-radius:2px;margin-top:10px;}
+.divider{border:none;border-top:1px solid rgba(31,85,86,.12);margin:28px 0;}
+.chart-card{background:var(--white);border:1px solid rgba(31,85,86,.15);border-radius:6px;overflow:hidden;margin-bottom:16px;}
+.chart-card-head{background:var(--teal);color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.chart-card-head.forest{background:var(--forest);}
+.chart-card-title{font-size:12px;font-weight:700;}
+.chart-card-meta{font-size:10px;color:rgba(255,255,255,.7);}
+.chart-card-body{padding:16px 20px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;}
+.f-btn{font-size:11px;font-weight:700;padding:6px 14px;border-radius:5px;border:2px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);color:rgba(255,255,255,.85);cursor:pointer;transition:all .15s;font-family:'Space Grotesk',sans-serif;white-space:nowrap;letter-spacing:.02em;}
+.f-btn:hover{border-color:rgba(255,255,255,.85);background:rgba(255,255,255,.25);color:#fff;}
+.f-btn.active{background:#fff;color:var(--forest);border-color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.18);}
+.f-btn-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.08em;}
+.tbl-f-btn{font-size:10px;font-weight:700;padding:4px 12px;border-radius:4px;border:1.5px solid rgba(31,85,86,.3);background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;font-family:'Space Grotesk',sans-serif;}
+.tbl-f-btn:hover{border-color:var(--teal);color:var(--teal);}
+.tbl-f-btn.active{background:var(--forest);color:#fff;border-color:var(--forest);}
+.stat-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(31,85,86,.07);font-size:12px;}
+.stat-row:last-child{border-bottom:none;}
+.stat-name{color:var(--text2);font-weight:500;display:flex;align-items:center;gap:8px;}
+.stat-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+.stat-count{font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;}
+.stat-pct{font-size:11px;padding:2px 8px;border-radius:3px;font-weight:700;}
+.stat-pct.pos{color:var(--teal);background:rgba(17,171,171,.1);}
+.stat-pct.neutral{color:var(--text3);background:rgba(31,85,86,.06);}
+.leg-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text2);padding:3px 6px;border-radius:3px;}
+.leg-dot{width:24px;height:3px;border-radius:2px;flex-shrink:0;}
+.tbl-outer{overflow-x:auto;border:1px solid rgba(31,85,86,.15);border-radius:6px;background:var(--white);margin-bottom:16px;}
+table.dt{border-collapse:collapse;font-size:11px;width:100%;}
+table.dt thead th{padding:8px 12px;font-size:9px;font-weight:700;text-align:right;white-space:nowrap;background:var(--forest);color:#fff;letter-spacing:.04em;}
+table.dt thead th:first-child{text-align:left;position:sticky;left:0;min-width:120px;background:var(--forest);}
+table.dt tbody td{padding:7px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid rgba(31,85,86,.07);font-variant-numeric:tabular-nums;color:var(--text);}
+table.dt tbody td:first-child{text-align:left;position:sticky;left:0;background:var(--white);font-weight:600;}
+table.dt tbody tr:hover td{background:rgba(17,171,171,.04);}
+table.dt tbody tr:hover td:first-child{background:rgba(17,171,171,.04);}
+tr.tr-total td{font-weight:700;background:rgba(17,171,171,.08);border-bottom:none;}
+tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
+.pct-cell{display:inline-block;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:700;}
+.pct-high{background:rgba(17,171,171,.15);color:#0d8080;}
+.pct-mid{background:rgba(212,131,10,.12);color:var(--amber);}
+.pct-low{background:rgba(192,57,43,.1);color:var(--red);}
+.footer{margin-top:40px;padding:16px 0;border-top:1px solid rgba(31,85,86,.15);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.footer-left{font-size:10px;color:var(--text3);}
+.footer-conf{font-size:9px;color:var(--text3);border:1px solid var(--gray);border-radius:3px;padding:3px 9px;letter-spacing:.1em;text-transform:uppercase;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .4s ease forwards;}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr);}.grid-3{grid-template-columns:1fr;}.page{padding:0 16px 40px 16px;}}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-label">VEMO · COL</div>
+  <div class="sidebar-dot"></div>
+  <div class="sidebar-bottom">Strictly Private &amp; Confidential</div>
+</div>
+<div class="page fade-in">
+
+  <header class="page-header">
+    <div class="header-left">
+      <div class="vemo-wordmark">VEMO</div>
+      <div class="header-divider"></div>
+      <div class="header-subtitle">Repossessed — Cohort Dashboard</div>
+    </div>
+    <div class="header-right">
+      <span class="badge-period">Jan 2024 – May 2026</span>
+      <span id="data-ts" class="badge-conf" style="border-color:rgba(17,171,171,.4);color:var(--teal);"></span><span class="badge-conf">Confidential</span>
+    </div>
+  </header>
+
+  <!-- KPIs -->
+  <div class="section-head">
+    <span>General Summary</span>
+    <span class="section-note">Effective repossessions as of May 2026 close</span>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Contracts Sent</div>
+      <div class="kpi-value">1,290</div>
+      <div class="kpi-sub">Total in repossession portfolio</div>
+      <div class="kpi-bar" style="background:rgba(31,85,86,.12);"><div style="width:100%;height:100%;background:var(--forest);border-radius:2px;"></div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Effectively Collected</div>
+      <div class="kpi-value" style="color:var(--teal);">978</div>
+      <div class="kpi-sub">Units effectively recovered</div>
+      <div class="kpi-bar" style="background:rgba(17,171,171,.12);"><div style="width:75.8%;height:100%;background:var(--teal);border-radius:2px;"></div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Repossession Rate</div>
+      <div class="kpi-value" style="color:var(--green);">75.8%</div>
+      <div class="kpi-sub">Collected / total sent</div>
+      <div class="kpi-bar" style="background:rgba(26,122,74,.1);"><div style="width:75.8%;height:100%;background:var(--green);border-radius:2px;"></div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Avg. Repossession Time</div>
+      <div class="kpi-value" style="color:var(--amber);">8.7 m</div>
+      <div class="kpi-sub">Months from cohort to repossession</div>
+      <div class="kpi-bar" style="background:rgba(212,131,10,.1);"><div style="width:35%;height:100%;background:var(--amber);border-radius:2px;"></div></div>
+    </div>
+  </div>
+  <div class="grid-3" style="margin-top:-12px;">
+    <div style="background:var(--white);border:1px solid rgba(31,85,86,.12);border-radius:6px;padding:14px 16px;">
+      <div class="kpi-label" style="margin-bottom:6px;">Pending</div>
+      <div style="font-size:20px;font-weight:800;color:var(--amber);">206</div>
+      <div class="kpi-sub">16.0% of portfolio</div>
+    </div>
+    <div style="background:var(--white);border:1px solid rgba(31,85,86,.12);border-radius:6px;padding:14px 16px;">
+      <div class="kpi-label" style="margin-bottom:6px;">Cancelled</div>
+      <div style="font-size:20px;font-weight:800;color:var(--red);">105</div>
+      <div class="kpi-sub">8.1% of portfolio</div>
+    </div>
+    <div style="background:var(--white);border:1px solid rgba(31,85,86,.12);border-radius:6px;padding:14px 16px;">
+      <div class="kpi-label" style="margin-bottom:6px;">Active Cohorts (2024+)</div>
+      <div style="font-size:20px;font-weight:800;color:var(--forest);">39</div>
+      <div class="kpi-sub">Jan 2024 – Apr 2026</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- HEATMAP -->
+  <div class="section-head">
+    <span>Repossession Heatmap — Cohort × Elapsed Month</span>
+    <span class="section-note">White = low repossession rate · Red = high repossession rate</span>
+  </div>
+  <div class="chart-card" style="margin-bottom:28px;">
+    <div class="chart-card-head forest" style="gap:12px;flex-wrap:wrap;">
+      <div>
+        <div class="chart-card-title">Cumulative % collected per cohort at each month</div>
+        <div class="chart-card-meta">Hover over each cell for the exact fraction</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="f-btn-label">View:</span>
+          <button class="f-btn active" id="hm-cum" onclick="setHmMode('cum')">% Cumulative</button>
+          <button class="f-btn" id="hm-inc" onclick="setHmMode('inc')">% That Month</button>
+          <button class="f-btn" id="hm-cnt" onclick="setHmMode('cnt')">Units</button>
+        </div>
+        <div style="width:1px;height:24px;background:rgba(255,255,255,.25);"></div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="f-btn-label">N:</span>
+          <button class="f-btn active" id="hm-nenv" onclick="setHmN('env')">n sent</button>
+          <button class="f-btn" id="hm-norig" onclick="setHmN('orig')">N originations</button>
+        </div>
+        <div style="width:1px;height:24px;background:rgba(255,255,255,.25);"></div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="f-btn-label">Group:</span>
+          <button class="f-btn active" id="hmg-monthly" onclick="setHmGrouping('monthly')">Monthly</button>
+          <button class="f-btn" id="hmg-quarterly" onclick="setHmGrouping('quarterly')">Quarterly</button>
+        </div>
+        <div style="width:1px;height:24px;background:rgba(255,255,255,.25);"></div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="f-btn-label">Year:</span>
+          <button class="f-btn active" id="hmy-2024" onclick="toggleHmYear('2024')">2024</button>
+          <button class="f-btn active" id="hmy-2025" onclick="toggleHmYear('2025')">2025</button>
+          <button class="f-btn active" id="hmy-2026" onclick="toggleHmYear('2026')">2026</button>
+        </div>
+      </div>
+    </div>
+    <div class="chart-card-body" style="padding:12px 16px 16px;">
+      <div id="hm-n-note" style="font-size:10px;color:var(--text3);margin-bottom:8px;min-height:14px;"></div>
+      <div style="overflow-x:auto;" id="hmContainer"></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;">
+        <span style="font-size:10px;color:var(--text3);font-weight:600;">Color:</span>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <div style="width:18px;height:12px;background:#F8F8F8;border-radius:2px 0 0 2px;border:1px solid rgba(0,0,0,.1);"></div>
+          <div style="width:18px;height:12px;background:#FFD080;border:1px solid rgba(0,0,0,.1);border-left:none;"></div>
+          <div style="width:18px;height:12px;background:#FFB940;border:1px solid rgba(0,0,0,.1);border-left:none;"></div>
+          <div style="width:18px;height:12px;background:#E8604A;border:1px solid rgba(0,0,0,.1);border-left:none;"></div>
+          <div style="width:18px;height:12px;background:#D23C32;border-radius:0 2px 2px 0;border:1px solid rgba(0,0,0,.1);border-left:none;"></div>
+        </div>
+        <span style="font-size:10px;color:var(--text3);">0% → 100%</span>
+        <span style="font-size:10px;color:var(--text3);margin-left:8px;">· Blank cell = no repossessions yet</span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- VINTAGE CURVE -->
+  <div class="section-head">
+    <span>Vintage Curve — Cumulative % Collected by Cohort</span>
+    <span class="section-note">Tooltip: % collected at month M</span>
+  </div>
+  <div class="chart-card">
+    <div class="chart-card-head forest" style="gap:12px;flex-wrap:wrap;">
+      <div>
+        <div class="chart-card-title">Cumulative fraction collected per cohort (% of that cohort's total)</div>
+        <div class="chart-card-meta">X axis = months since origination · axis adjusts to last active month</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="f-btn-label">Year:</span>
+          <button class="f-btn active" id="grp-all" onclick="setVintageGroup('all')">All</button>
+          <button class="f-btn" id="grp-2024" onclick="setVintageGroup('2024')">2024</button>
+          <button class="f-btn" id="grp-2025" onclick="setVintageGroup('2025')">2025</button>
+          <button class="f-btn" id="grp-2026" onclick="setVintageGroup('2026')">2026</button>
+        </div>
+        <div style="width:1px;height:24px;background:rgba(255,255,255,.25);"></div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="f-btn-label">Group:</span>
+          <button class="f-btn active" id="vg-monthly" onclick="setVintageGrouping('monthly')">Monthly</button>
+          <button class="f-btn" id="vg-quarterly" onclick="setVintageGrouping('quarterly')">Quarterly</button>
+        </div>
+        <div style="width:1px;height:24px;background:rgba(255,255,255,.25);"></div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="f-btn-label">MA:</span>
+          <button class="f-btn active" id="vma-global" onclick="setVintageMA('global')">Global</button>
+          <button class="f-btn" id="vma-yearly" onclick="setVintageMA('yearly')">By Year</button>
+          <button class="f-btn" id="vma-none" onclick="setVintageMA('none')">None</button>
+        </div>
+      </div>
+    </div>
+    <div class="chart-card-body">
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;">
+        <div id="vintageScroll" style="position:relative;height:320px;min-width:900px;">
+          <canvas id="vintageChart"></canvas>
+        </div>
+      </div>
+      <div class="leg-wrap" id="vintageLegend"></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ORIG VS REC -->
+  <div class="section-head">
+    <span>New Originations vs Repossessed by Month</span>
+    <span class="section-note">Jan 2025 – Apr 2026 · Source: Originations sheet (row 18)</span>
+  </div>
+  <div class="chart-card" style="margin-bottom:28px;">
+    <div class="chart-card-head forest">
+      <div>
+        <div class="chart-card-title">Originations (base) + Repossessed on top · repossession rate % above bar</div>
+        <div class="chart-card-meta">Units per calendar month · bar height = originations · teal = collected</div>
+      </div>
+    </div>
+    <div class="chart-card-body">
+      <div style="position:relative;width:100%;height:280px;"><canvas id="origRecChart"></canvas></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- DESGLOSE -->
+  <div class="section-head">
+    <span>Repossessed Breakdown</span>
+    <span class="section-note">By platform · state · gender</span>
+  </div>
+  <div class="grid-3">
+    <div class="chart-card" style="margin-bottom:0;">
+      <div class="chart-card-head"><div class="chart-card-title">By Platform</div><div class="chart-card-meta">978 collected</div></div>
+      <div class="chart-card-body">
+        <div style="position:relative;height:160px;display:flex;justify-content:center;"><canvas id="platChart"></canvas></div>
+        <div style="margin-top:12px;">
+          <div class="stat-row"><div class="stat-name"><div class="stat-dot" style="background:#11ABAB;"></div>UBER</div><div style="display:flex;align-items:center;gap:8px;"><span class="stat-count">737</span><span class="stat-pct pos">75.4%</span></div></div>
+          <div class="stat-row"><div class="stat-name"><div class="stat-dot" style="background:#1F5556;"></div>DIDI</div><div style="display:flex;align-items:center;gap:8px;"><span class="stat-count">241</span><span class="stat-pct neutral">24.6%</span></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="chart-card" style="margin-bottom:0;">
+      <div class="chart-card-head"><div class="chart-card-title">By State</div><div class="chart-card-meta">5 states</div></div>
+      <div class="chart-card-body">
+        <div style="position:relative;height:160px;"><canvas id="estadoChart"></canvas></div>
+        <div style="margin-top:12px;">
+          <div class="stat-row"><div class="stat-name"><div class="stat-dot" style="background:#11ABAB;border-radius:50%;"></div>Mexico City</div><div style="display:flex;align-items:center;gap:8px;"><span class="stat-count">727</span><span class="stat-pct pos">74.3%</span></div></div>
+          <div class="stat-row"><div class="stat-name"><div class="stat-dot" style="background:#1F5556;border-radius:50%;"></div>Baja California</div><div style="display:flex;align-items:center;gap:8px;"><span class="stat-count">118</span><span class="stat-pct neutral">12.1%</span></div></div>
+          <div class="stat-row"><div class="stat-name"><div class="stat-dot" style="background:#4a9898;border-radius:50%;"></div>Nuevo León</div><div style="display:flex;align-items:center;gap:8px;"><span class="stat-count">75</span><span class="stat-pct neutral">7.7%</span></div></div>
+          <div class="stat-row"><div class="stat-name"><div class="stat-dot" style="background:#8ac8c8;border-radius:50%;"></div>Jalisco</div><div style="display:flex;align-items:center;gap:8px;"><span class="stat-count">50</span><span class="stat-pct neutral">5.1%</span></div></div>
+          <div class="stat-row"><div class="stat-name"><div class="stat-dot" style="background:#b8dede;border-radius:50%;"></div>Querétaro</div><div style="display:flex;align-items:center;gap:8px;"><span class="stat-count">8</span><span class="stat-pct neutral">0.8%</span></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="chart-card" style="margin-bottom:0;">
+      <div class="chart-card-head"><div class="chart-card-title">By Gender</div><div class="chart-card-meta">978 collected</div></div>
+      <div class="chart-card-body">
+        <div style="position:relative;height:160px;display:flex;justify-content:center;"><canvas id="sexoChart"></canvas></div>
+        <div style="margin-top:12px;">
+          <div class="stat-row"><div class="stat-name"><div class="stat-dot" style="background:#1F5556;"></div>Male</div><div style="display:flex;align-items:center;gap:8px;"><span class="stat-count">958</span><span class="stat-pct pos">97.9%</span></div></div>
+          <div class="stat-row"><div class="stat-name"><div class="stat-dot" style="background:#11ABAB;"></div>Female</div><div style="display:flex;align-items:center;gap:8px;"><span class="stat-count">20</span><span class="stat-pct neutral">2.0%</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLATFORM BAR -->
+  <div class="chart-card" style="margin-bottom:16px;">
+    <div class="chart-card-head forest">
+      <div class="chart-card-title">Originations vs Repossessed by Platform · 2024 – YTD2026</div>
+      <div class="chart-card-meta">UBER and DIDI · cumulative totals</div>
+    </div>
+    <div class="chart-card-body">
+      <div style="position:relative;width:100%;height:220px;"><canvas id="platBarChart"></canvas></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- COSECHA BAR -->
+  <div class="section-head">
+    <span>Cohorts — Contracts Sent vs Effectively Collected</span>
+    <span class="section-note">Cohorts 2024+ with ≥5 contracts</span>
+  </div>
+  <div class="chart-card" style="margin-bottom:16px;">
+    <div class="chart-card-head" style="gap:12px;flex-wrap:wrap;">
+      <div>
+        <div class="chart-card-title">Sent to Recovery vs Collected by cohort</div>
+        <div class="chart-card-meta">Grouped bars</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span class="f-btn-label">Year:</span>
+        <button class="f-btn active" id="cb-all"  onclick="setCosechaYear('all')">All</button>
+        <button class="f-btn" id="cb-2024" onclick="setCosechaYear('2024')">2024</button>
+        <button class="f-btn" id="cb-2025" onclick="setCosechaYear('2025')">2025</button>
+        <button class="f-btn" id="cb-2026" onclick="setCosechaYear('2026')">2026</button>
+      </div>
+    </div>
+    <div class="chart-card-body">
+      <div style="position:relative;width:100%;height:300px;"><canvas id="cosechaBarChart"></canvas></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- TABLE -->
+  <div class="section-head-light">
+    <span>Cohort Detail</span>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <button class="tbl-f-btn active" id="tbl-yr-all"  onclick="setTblYear('all')">All</button>
+      <button class="tbl-f-btn" id="tbl-yr-2024" onclick="setTblYear('2024')">2024</button>
+      <button class="tbl-f-btn" id="tbl-yr-2025" onclick="setTblYear('2025')">2025</button>
+      <button class="tbl-f-btn" id="tbl-yr-2026" onclick="setTblYear('2026')">2026</button>
+      <div style="width:1px;height:16px;background:rgba(31,85,86,.2);"></div>
+      <button class="tbl-f-btn active" id="tbl-monthly" onclick="setTblGrouping('monthly')">Monthly</button>
+      <button class="tbl-f-btn" id="tbl-quarterly" onclick="setTblGrouping('quarterly')">Quarterly</button>
+    </div>
+  </div>
+  <div class="tbl-outer">
+    <table class="dt">
+      <thead><tr>
+        <th>Cohort</th><th>Originations</th><th>Sent to Recovery</th><th>Repossessed</th><th>Pending</th><th>% Repossessed</th><th>% Sent / Orig</th><th>% Reposs / Orig</th>
+      </tr></thead>
+      <tbody id="cosechaTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- ORIG RATES CHART -->
+  <div class="chart-card" style="margin-bottom:28px;">
+    <div class="chart-card-head forest">
+      <div>
+        <div class="chart-card-title">Recovery Rates vs. Originations — by Cohort</div>
+        <div class="chart-card-meta">% Sent to Recovery / Originations &nbsp;·&nbsp; % Repossessed / Originations</div>
+      </div>
+    </div>
+    <div class="chart-card-body">
+      <div style="position:relative;width:100%;height:320px;"><canvas id="origRatesChart"></canvas></div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-left">VEMO · Repossessed Dashboard · Data as of May 2026 close</div>
+    <div style="display:flex;gap:12px;align-items:center;">
+      <span style="font-size:10px;color:var(--text3);">Source: Export sheet · Originations</span>
+      <span class="footer-conf">Confidential</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+let VD = {
+  "01-2023":{n:5,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,20.0,20.0,40.0,40.0,40.0,40.0,40.0,40.0]},
+  "01-2024":{n:7,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,14.3,14.3,14.3,14.3,14.3,14.3,14.3,14.3,14.3,14.3,14.3,28.6,42.9,42.9,42.9,42.9,42.9,42.9,42.9,42.9,42.9,42.9,42.9]},
+  "01-2025":{n:57,c:[0.0,0.0,3.5,12.3,21.1,36.8,47.4,52.6,57.9,61.4,63.2,63.2,63.2,66.7,75.4,75.4,77.2,77.2,77.2,77.2,77.2,77.2,77.2,77.2,77.2,77.2,77.2,77.2,77.2,77.2,77.2,77.2,77.2,77.2,77.2,77.2,77.2]},
+  "01-2026":{n:22,c:[0.0,13.6,27.3,54.5,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7,72.7]},
+  "02-2022":{n:1,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,100.0]},
+  "02-2023":{n:1,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,100.0,100.0,100.0,100.0,100.0]},
+  "02-2024":{n:17,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,11.8,11.8,23.5,23.5,23.5,23.5,29.4,41.2,41.2,41.2,47.1,58.8,58.8,58.8,64.7,64.7,64.7,64.7,64.7,64.7,64.7,64.7,64.7,64.7]},
+  "02-2025":{n:61,c:[0.0,0.0,1.6,13.1,27.9,34.4,37.7,47.5,50.8,50.8,52.5,57.4,63.9,68.9,77.0,83.6,83.6,83.6,83.6,83.6,83.6,83.6,83.6,83.6,83.6,83.6,83.6,83.6,83.6,83.6,83.6,83.6,83.6,83.6,83.6,83.6,83.6]},
+  "02-2026":{n:2,c:[0.0,0.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0,50.0]},
+  "03-2023":{n:6,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,16.7,33.3,33.3,33.3,33.3,33.3,33.3,33.3,33.3,33.3,50.0,50.0]},
+  "03-2024":{n:15,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,13.3,13.3,13.3,26.7,26.7,33.3,40.0,40.0,40.0,40.0,40.0,40.0,66.7,66.7,80.0,93.3,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0]},
+  "03-2025":{n:61,c:[0.0,0.0,1.6,13.1,29.5,41.0,50.8,52.5,54.1,57.4,62.3,63.9,70.5,77.0,80.3,80.3,80.3,80.3,80.3,80.3,80.3,80.3,80.3,80.3,80.3,80.3,80.3,80.3,80.3,80.3,80.3,80.3,80.3,80.3,80.3,80.3,80.3]},
+  "03-2026":{n:2,c:[0.0,50.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0]},
+  "04-2023":{n:4,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,25.0,25.0,25.0,25.0,25.0,25.0,25.0,25.0,25.0,50.0]},
+  "04-2024":{n:18,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,11.1,16.7,16.7,16.7,22.2,22.2,33.3,33.3,33.3,33.3,38.9,38.9,38.9,50.0,61.1,61.1,61.1,61.1,61.1,61.1,61.1,61.1,61.1,61.1,61.1,61.1,61.1,61.1]},
+  "04-2025":{n:85,c:[0.0,0.0,1.2,4.7,18.8,22.4,30.6,32.9,38.8,48.2,51.8,54.1,62.4,67.1,67.1,67.1,67.1,67.1,67.1,67.1,67.1,67.1,67.1,67.1,67.1,67.1,67.1,67.1,67.1,67.1,67.1,67.1,67.1,67.1,67.1,67.1,67.1]},
+  "05-2022":{n:1,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]},
+  "05-2023":{n:2,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,50.0,50.0,50.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0]},
+  "05-2024":{n:21,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,9.5,9.5,14.3,19.0,23.8,23.8,28.6,28.6,28.6,38.1,52.4,61.9,71.4,71.4,71.4,71.4,71.4,71.4,71.4,71.4,71.4,71.4,71.4,71.4,71.4,71.4]},
+  "05-2025":{n:74,c:[0.0,2.7,6.8,18.9,25.7,36.5,39.2,43.2,48.6,56.8,64.9,77.0,81.1,81.1,81.1,81.1,81.1,81.1,81.1,81.1,81.1,81.1,81.1,81.1,81.1,81.1,81.1,81.1,81.1,81.1,81.1,81.1,81.1,81.1,81.1,81.1,81.1]},
+  "06-2022":{n:1,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,100.0,100.0]},
+  "06-2023":{n:4,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,25.0,25.0,25.0,25.0,25.0,25.0,50.0,50.0,75.0,75.0,75.0,75.0,75.0]},
+  "06-2024":{n:20,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,15.0,25.0,30.0,35.0,40.0,55.0,55.0,55.0,55.0,60.0,60.0,70.0,75.0,85.0,90.0,90.0,90.0,90.0,90.0,90.0,90.0,90.0,90.0,90.0,90.0,90.0,90.0,90.0]},
+  "06-2025":{n:90,c:[0.0,2.2,7.8,12.2,15.6,18.9,23.3,32.2,37.8,52.2,62.2,68.9,68.9,68.9,68.9,68.9,68.9,68.9,68.9,68.9,68.9,68.9,68.9,68.9,68.9,68.9,68.9,68.9,68.9,68.9,68.9,68.9,68.9,68.9,68.9,68.9,68.9]},
+  "07-2023":{n:5,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,20.0,20.0,20.0,40.0,40.0,40.0,40.0,40.0,80.0,80.0,80.0,80.0,80.0,80.0]},
+  "07-2024":{n:36,c:[0.0,0.0,0.0,0.0,0.0,0.0,11.1,11.1,19.4,25.0,33.3,36.1,47.2,50.0,50.0,50.0,52.8,55.6,61.1,66.7,69.4,77.8,77.8,77.8,77.8,77.8,77.8,77.8,77.8,77.8,77.8,77.8,77.8,77.8,77.8,77.8,77.8]},
+  "07-2025":{n:97,c:[1.0,3.1,7.2,11.3,13.4,17.5,30.9,38.1,53.6,64.9,69.1,69.1,69.1,69.1,69.1,69.1,69.1,69.1,69.1,69.1,69.1,69.1,69.1,69.1,69.1,69.1,69.1,69.1,69.1,69.1,69.1,69.1,69.1,69.1,69.1,69.1,69.1]},
+  "08-2022":{n:3,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,33.3,66.7,66.7,66.7,66.7,66.7]},
+  "08-2023":{n:5,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,20.0,40.0,80.0,80.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0]},
+  "08-2024":{n:39,c:[0.0,0.0,0.0,0.0,0.0,5.1,5.1,15.4,25.6,33.3,46.2,53.8,59.0,64.1,66.7,66.7,69.2,69.2,76.9,82.1,87.2,87.2,87.2,87.2,87.2,87.2,87.2,87.2,87.2,87.2,87.2,87.2,87.2,87.2,87.2,87.2,87.2]},
+  "08-2025":{n:70,c:[0.0,0.0,4.3,7.1,8.6,22.9,35.7,52.9,74.3,80.0,80.0,80.0,80.0,80.0,80.0,80.0,80.0,80.0,80.0,80.0,80.0,80.0,80.0,80.0,80.0,80.0,80.0,80.0,80.0,80.0,80.0,80.0,80.0,80.0,80.0,80.0,80.0]},
+  "09-2022":{n:4,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,25.0,50.0,50.0,50.0,50.0]},
+  "09-2023":{n:10,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,40.0,40.0,50.0,70.0,70.0,70.0,70.0,70.0,80.0,80.0,90.0,90.0,90.0,90.0,90.0,90.0,90.0,90.0]},
+  "09-2024":{n:28,c:[0.0,0.0,0.0,0.0,0.0,7.1,7.1,10.7,25.0,39.3,46.4,53.6,57.1,64.3,64.3,67.9,75.0,78.6,89.3,89.3,96.4,96.4,96.4,96.4,96.4,96.4,96.4,96.4,96.4,96.4,96.4,96.4,96.4,96.4,96.4,96.4,96.4]},
+  "09-2025":{n:62,c:[0.0,0.0,0.0,1.6,16.1,32.3,53.2,67.7,82.3,82.3,82.3,82.3,82.3,82.3,82.3,82.3,82.3,82.3,82.3,82.3,82.3,82.3,82.3,82.3,82.3,82.3,82.3,82.3,82.3,82.3,82.3,82.3,82.3,82.3,82.3,82.3,82.3]},
+  "10-2023":{n:10,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.0,20.0,20.0,30.0,30.0,40.0,50.0,60.0,60.0,60.0,60.0,60.0,70.0,70.0,70.0,70.0,70.0,70.0,70.0,70.0,70.0,70.0]},
+  "10-2024":{n:42,c:[0.0,0.0,0.0,2.4,4.8,9.5,14.3,21.4,26.2,33.3,35.7,40.5,42.9,45.2,45.2,54.8,69.0,71.4,85.7,85.7,85.7,85.7,85.7,85.7,85.7,85.7,85.7,85.7,85.7,85.7,85.7,85.7,85.7,85.7,85.7,85.7,85.7]},
+  "10-2025":{n:67,c:[0.0,0.0,0.0,13.4,26.9,55.2,73.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1,82.1]},
+  "11-2022":{n:3,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,33.3,33.3,33.3,33.3,66.7,66.7,66.7,66.7,66.7,66.7,66.7]},
+  "11-2023":{n:9,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,11.1,11.1,11.1,11.1,11.1,11.1,11.1,11.1,11.1,11.1,11.1,11.1,11.1,33.3,33.3,44.4,44.4,44.4,44.4,44.4,44.4,44.4]},
+  "11-2024":{n:40,c:[0.0,0.0,0.0,2.5,12.5,25.0,32.5,40.0,42.5,50.0,55.0,57.5,57.5,57.5,65.0,67.5,75.0,82.5,85.0,85.0,85.0,85.0,85.0,85.0,85.0,85.0,85.0,85.0,85.0,85.0,85.0,85.0,85.0,85.0,85.0,85.0,85.0]},
+  "11-2025":{n:56,c:[0.0,0.0,1.8,10.7,35.7,62.5,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8,76.8]},
+  "12-2022":{n:3,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,33.3,33.3,33.3,100.0,100.0,100.0,100.0,100.0]},
+  "12-2023":{n:9,c:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,22.2,22.2,44.4,44.4,44.4,44.4,44.4,44.4,44.4,44.4,44.4,44.4,44.4,44.4,44.4,44.4,44.4,44.4,44.4,44.4,44.4,44.4,44.4,44.4]},
+  "12-2024":{n:58,c:[0.0,1.7,3.4,17.2,22.4,32.8,39.7,48.3,56.9,65.5,69.0,69.0,69.0,72.4,75.9,81.0,93.1,94.8,94.8,94.8,94.8,94.8,94.8,94.8,94.8,94.8,94.8,94.8,94.8,94.8,94.8,94.8,94.8,94.8,94.8,94.8,94.8]},
+  "12-2025":{n:28,c:[0.0,0.0,3.6,14.3,50.0,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7,60.7]}
+};
+
+let N_ORIG = {
+  "01-2023":36,"02-2023":31,"03-2023":30,"04-2023":27,"05-2023":28,"06-2023":44,
+  "07-2023":43,"08-2023":50,"09-2023":55,"10-2023":51,"11-2023":58,"12-2023":36,
+  "01-2024":63,"02-2024":68,"03-2024":60,"04-2024":73,"05-2024":94,"06-2024":103,
+  "07-2024":119,"08-2024":114,"09-2024":112,"10-2024":120,"11-2024":95,"12-2024":105,
+  "01-2025":97,"02-2025":99,"03-2025":136,"04-2025":161,"05-2025":157,"06-2025":195,
+  "07-2025":199,"08-2025":166,"09-2025":180,"10-2025":206,"11-2025":211,"12-2025":215,
+  "01-2026":175,"02-2026":201,"03-2026":177,"04-2026":218
+};
+
+let ORIG_REC = {
+  labels: ['Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26','Mar 26','Apr 26'],
+  new_v:  [97,99,136,161,157,195,199,166,180,206,211,215,175,201,177,218],
+  rec:    [16,9,34,35,47,56,58,62,46,41,16,27,90,95,135,143]
+};
+
+let COSECHA_TABLE = [
+  {c:'01-2024',t:7,ca:3,p:4,nOrig:63},
+  {c:'02-2024',t:17,ca:11,p:6,nOrig:68},
+  {c:'03-2024',t:15,ca:15,p:0,nOrig:60},
+  {c:'04-2024',t:18,ca:11,p:7,nOrig:73},
+  {c:'05-2024',t:21,ca:15,p:6,nOrig:94},
+  {c:'06-2024',t:20,ca:18,p:2,nOrig:103},
+  {c:'07-2024',t:36,ca:28,p:8,nOrig:119},
+  {c:'08-2024',t:39,ca:34,p:5,nOrig:114},
+  {c:'09-2024',t:28,ca:27,p:1,nOrig:112},
+  {c:'10-2024',t:42,ca:36,p:6,nOrig:120},
+  {c:'11-2024',t:40,ca:34,p:6,nOrig:95},
+  {c:'12-2024',t:58,ca:54,p:4,nOrig:105},
+  {c:'01-2025',t:57,ca:44,p:13,nOrig:97},
+  {c:'02-2025',t:61,ca:51,p:10,nOrig:99},
+  {c:'03-2025',t:61,ca:49,p:12,nOrig:136},
+  {c:'04-2025',t:85,ca:57,p:28,nOrig:161},
+  {c:'05-2025',t:74,ca:60,p:14,nOrig:157},
+  {c:'06-2025',t:90,ca:62,p:28,nOrig:195},
+  {c:'07-2025',t:97,ca:67,p:30,nOrig:199},
+  {c:'08-2025',t:70,ca:56,p:14,nOrig:166},
+  {c:'09-2025',t:62,ca:51,p:11,nOrig:180},
+  {c:'10-2025',t:67,ca:55,p:12,nOrig:206},
+  {c:'11-2025',t:56,ca:43,p:13,nOrig:211},
+  {c:'12-2025',t:28,ca:17,p:11,nOrig:215},
+  {c:'01-2026',t:22,ca:16,p:6,nOrig:175},
+  {c:'02-2026',t:2,ca:1,p:1,nOrig:201},
+  {c:'03-2026',t:2,ca:2,p:0,nOrig:177}
+].filter(d=>d.t>0);
+
+// ── COLORS ────────────────────────────────────────────────────────────────────
+function hslHex(h,s,l){
+  s/=100;l/=100;const a=s*Math.min(l,1-l);
+  const f=n=>{const k=(n+h/30)%12;const c=l-a*Math.max(Math.min(k-3,9-k,1),-1);return Math.round(255*c).toString(16).padStart(2,'0');};
+  return '#'+f(0)+f(8)+f(4);
+}
+const YEAR_PAL={'2022':{h:270,s:55,lb:42},'2023':{h:210,s:65,lb:35},'2024':{h:150,s:60,lb:32},'2025':{h:35,s:85,lb:38},'2026':{h:5,s:75,lb:42}};
+function yearBaseColor(y){const p=YEAR_PAL[y]||{h:180,s:60,lb:40};return hslHex(p.h,p.s,p.lb+5);}
+function cosechaColor(cos){
+  const[mm,yy]=cos.split('-');const m=parseInt(mm);
+  const p=YEAR_PAL[yy]||{h:180,s:60,lb:40};
+  return hslHex(p.h,p.s,Math.min(p.lb+(m-1)*2.5,72));
+}
+function hexToRgba(hex,a){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function getQ(cos){const[mm,yy]=cos.split('-');return `Q${Math.ceil(parseInt(mm)/3)}-${yy}`;}
+function mergeCosechas(list,nMode){
+  const rec=new Array(37).fill(0);let totalN=0;
+  list.forEach(cos=>{
+    const d=VD[cos];const nE=d.n;const nO=N_ORIG[cos]||null;
+    const N=nMode==='orig'?(nO||nE):nE;
+    totalN+=N;
+    for(let m=0;m<37;m++){const cum=m<d.c.length?d.c[m]:d.c[d.c.length-1];rec[m]+=Math.round(cum/100*nE);}
+  });
+  return{n:totalN,c:rec.map(r=>totalN>0?Math.round(r/totalN*1000)/10:0)};
+}
+function lastIncrM(curve){for(let m=curve.length-1;m>=1;m--){if(curve[m]>curve[m-1])return m;}return 0;}
+
+// ── VINTAGE STATE ─────────────────────────────────────────────────────────────
+let vChart=null,vintageGroup='all',vintageGrouping='monthly',vintageMA='global';
+
+function setVintageGroup(g){
+  vintageGroup=g;
+  document.querySelectorAll('[id^="grp-"]').forEach(b=>b.classList.remove('active'));
+  document.getElementById('grp-'+g).classList.add('active');
+  const globalBtn=document.getElementById('vma-global');
+  if(g==='all'){globalBtn.style.display='';}
+  else{
+    globalBtn.style.display='none';
+    if(vintageMA==='global'){vintageMA='yearly';globalBtn.classList.remove('active');document.getElementById('vma-yearly').classList.add('active');document.getElementById('vma-none').classList.remove('active');}
+  }
+  buildVintage();
+}
+function setVintageGrouping(g){vintageGrouping=g;document.getElementById('vg-monthly').classList.toggle('active',g==='monthly');document.getElementById('vg-quarterly').classList.toggle('active',g==='quarterly');buildVintage();}
+function setVintageMA(m){vintageMA=m;['global','yearly','none'].forEach(x=>document.getElementById('vma-'+x).classList.toggle('active',x===m));buildVintage();}
+
+function buildVintage(){
+  const maxM=36,tickW=28;
+  const ctx=document.getElementById('vintageChart').getContext('2d');
+  let allCos=Object.keys(VD).filter(k=>!['2022','2023'].includes(k.split('-')[1]));
+  let cos=vintageGroup==='all'?allCos:allCos.filter(k=>k.split('-')[1]===vintageGroup);
+  let colMaxM;
+  if(vintageGrouping==='quarterly'){
+    const qT={};cos.forEach(c=>{const q=getQ(c);if(!qT[q])qT[q]=[];qT[q].push(c);});
+    const mC=Object.values(qT).map(l=>mergeCosechas(l,'orig').c);
+    colMaxM=mC.length>0?Math.min(Math.max(...mC.map(c=>lastIncrM(c))),maxM):maxM;
+  } else {
+    const lims=cos.map(c=>lastIncrM(VD[c].c));
+    colMaxM=lims.length>0?Math.min(Math.max(...lims),maxM):maxM;
+  }
+  document.getElementById('vintageScroll').style.minWidth=Math.max(900,(colMaxM+1)*tickW+90)+'px';
+  const labels=Array.from({length:colMaxM+1},(_,i)=>'M+'+i);
+  const datasets=[];
+  const useYearColor=(vintageGroup==='all');
+  const dimLines=(useYearColor&&vintageMA==='yearly');
+  if(vintageGrouping==='quarterly'){
+    const qMap={};cos.forEach(c=>{const q=getQ(c);if(!qMap[q])qMap[q]=[];qMap[q].push(c);});
+    Object.keys(qMap).sort((a,b)=>{const[qa,ya]=a.split('-');const[qb,yb]=b.split('-');return parseInt(ya)!==parseInt(yb)?parseInt(ya)-parseInt(yb):parseInt(qa.slice(1))-parseInt(qb.slice(1));}).forEach(q=>{
+      const m=mergeCosechas(qMap[q],'orig');const yr=q.split('-')[1];const baseCol=yearBaseColor(yr);const col=dimLines?hexToRgba(baseCol,0.28):baseCol;
+      const limM=lastIncrM(m.c);const data=Array.from({length:colMaxM+1},(_,i)=>i<=limM?(m.c[i]??null):null);
+      datasets.push({label:q,data,borderColor:col,backgroundColor:'transparent',borderWidth:dimLines?1.0:2.5,pointRadius:0,pointHoverRadius:4,tension:.3,spanGaps:false,_n:m.n,_year:yr});
+    });
+  } else {
+    cos.forEach(c=>{
+      const d=VD[c];const nE=d.n;const nO=N_ORIG[c]||null;const N=nO||nE;
+      const limM=lastIncrM(d.c);const raw=d.c.slice(0,maxM+1).map(v=>N>0?Math.round(v/100*nE/N*1000)/10:0);
+      const data=Array.from({length:colMaxM+1},(_,i)=>i<=limM?(raw[i]??null):null);
+      const baseCol=useYearColor?yearBaseColor(c.split('-')[1]):cosechaColor(c);const col=dimLines?hexToRgba(baseCol,0.25):baseCol;
+      datasets.push({label:c,data,borderColor:col,backgroundColor:'transparent',borderWidth:dimLines?0.9:1.8,pointRadius:0,pointHoverRadius:4,tension:.3,spanGaps:false,_n:N,_year:c.split('-')[1]});
+    });
+  }
+  if(vintageMA==='global'&&cos.length>0){
+    const m=mergeCosechas(cos,'orig');const limM=lastIncrM(m.c);
+    const data=Array.from({length:colMaxM+1},(_,i)=>i<=limM?(m.c[i]??null):null);
+    datasets.push({label:'Global MA',data,borderColor:'rgba(10,10,10,.80)',backgroundColor:'transparent',borderWidth:2.5,borderDash:[6,3],pointRadius:0,pointHoverRadius:5,tension:.3,spanGaps:false,_n:m.n,_isMA:true});
+  } else if(vintageMA==='yearly'){
+    [...new Set(cos.map(c=>c.split('-')[1]))].sort().forEach(yr=>{
+      const yrCos=cos.filter(c=>c.split('-')[1]===yr);if(!yrCos.length)return;
+      const m=mergeCosechas(yrCos,'orig');const limM=lastIncrM(m.c);const col=yearBaseColor(yr);
+      const data=Array.from({length:colMaxM+1},(_,i)=>i<=limM?(m.c[i]??null):null);
+      datasets.push({label:'MA '+yr,data,borderColor:col,backgroundColor:'transparent',borderWidth:3.5,borderDash:[6,3],pointRadius:0,pointHoverRadius:5,tension:.3,spanGaps:false,_n:m.n,_isMA:true,_year:yr});
+    });
+  }
+  if(vChart)vChart.destroy();
+  vChart=new Chart(ctx,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(31,85,86,.95)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',borderColor:'rgba(17,171,171,.3)',borderWidth:1,padding:10,filter:item=>item.raw!=null&&item.raw>0,callbacks:{title:i=>'At '+i[0].label+' from cohort',label:i=>{if(i.raw==null)return null;const ds=i.dataset;if(ds._isMA)return ` ${ds.label}: ${i.raw.toFixed(1)}% (n=${ds._n})`;return ` ${i.dataset.label}: ${i.raw.toFixed(1)}%`;}}}},scales:{x:{grid:{color:'rgba(31,85,86,.07)'},ticks:{font:{size:10},color:'#8a9a9a',maxTicksLimit:20}},y:{min:0,max:100,grid:{color:'rgba(31,85,86,.07)'},ticks:{font:{size:10},color:'#8a9a9a',callback:v=>v+'%'}}}}});
+  const leg=document.getElementById('vintageLegend');leg.innerHTML='';
+  datasets.forEach(ds=>{if(ds._isMA)return;const el=document.createElement('div');el.className='leg-item';el.innerHTML=`<span class="leg-dot" style="background:${ds.borderColor}"></span>${ds.label} (n=${ds._n||0})`;leg.appendChild(el);});
+}
+
+// ── ORIG/REC CHART — single stacked bar (rec bottom, orig-rec top) ─────────────
+const barLabelsPlugin={
+  id:'barLabels',
+  afterDatasetsDraw(chart){
+    const{ctx,scales:{y}}=chart;
+    const recMeta=chart.getDatasetMeta(0);   // teal = repossessed (bottom)
+    const darkMeta=chart.getDatasetMeta(1);  // dark = orig-rec (top)
+    ORIG_REC.new_v.forEach((orig,i)=>{
+      const rec=ORIG_REC.rec[i];
+      const tealBar=recMeta.data[i];
+      const darkBar=darkMeta.data[i];
+      if(!tealBar||!darkBar)return;
+      ctx.save();
+      ctx.textAlign='center';
+      // Teal segment: show repossession count
+      const tealH=Math.abs(tealBar.base-tealBar.y);
+      if(tealH>15&&rec>0){
+        ctx.font='bold 10px "Space Grotesk",sans-serif';
+        ctx.fillStyle='#ffffff';ctx.textBaseline='middle';
+        ctx.fillText(rec,tealBar.x,(tealBar.y+tealBar.base)/2);
+      }
+      // Dark segment: show origination count
+      const darkH=Math.abs(darkBar.base-darkBar.y);
+      if(darkH>15){
+        ctx.font='bold 10px "Space Grotesk",sans-serif';
+        ctx.fillStyle='rgba(255,255,255,.92)';ctx.textBaseline='middle';
+        ctx.fillText(orig,darkBar.x,(darkBar.y+darkBar.base)/2);
+      }
+      // % on top of bar
+      const pct=Math.round(rec/orig*100);
+      ctx.font='bold 10px "Space Grotesk",sans-serif';
+      ctx.fillStyle='rgba(31,85,86,.9)';ctx.textBaseline='bottom';
+      if(darkBar.y>y.top)ctx.fillText(pct+'%',darkBar.x,darkBar.y-3);
+      ctx.restore();
+    });
+  }
+};
+
+function buildOrigRec(){
+  const ctx=document.getElementById('origRecChart').getContext('2d');
+  new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:ORIG_REC.labels,
+      datasets:[
+        {label:'Repossessed',   data:ORIG_REC.rec,  backgroundColor:'rgba(17,171,171,.90)',borderRadius:0,borderSkipped:'bottom',stack:'A'},
+        {label:'Originations',  data:ORIG_REC.new_v.map((v,i)=>v-ORIG_REC.rec[i]),backgroundColor:'rgba(31,85,86,.72)',borderRadius:3,borderSkipped:false,stack:'A'}
+      ]
+    },
+    plugins:[barLabelsPlugin],
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:true,position:'top',labels:{font:{size:11},color:'#4a6060',boxWidth:14,boxHeight:4,padding:16,generateLabels:chart=>[
+          {text:'Originations',fillStyle:'rgba(31,85,86,.72)',strokeStyle:'transparent',lineWidth:0},
+          {text:'Repossessed',fillStyle:'rgba(17,171,171,.90)',strokeStyle:'transparent',lineWidth:0}
+        ]}},
+        tooltip:{backgroundColor:'rgba(31,85,86,.95)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',borderColor:'rgba(17,171,171,.3)',borderWidth:1,padding:10,
+          callbacks:{
+            label:item=>{
+              if(item.datasetIndex===0)return ` Repossessed: ${ORIG_REC.rec[item.dataIndex]}`;
+              return ` Originations: ${ORIG_REC.new_v[item.dataIndex]}`;
+            },
+            afterBody:items=>{const i=items[0].dataIndex;const pct=(ORIG_REC.rec[i]/ORIG_REC.new_v[i]*100).toFixed(1);return['─────────────────','Rate: '+pct+'% collected vs originated'];}
+          }
+        }
+      },
+      scales:{
+        x:{stacked:true,grid:{display:false},ticks:{font:{size:10},color:'#8a9a9a'}},
+        y:{stacked:true,beginAtZero:true,grid:{color:'rgba(31,85,86,.07)'},ticks:{font:{size:10},color:'#8a9a9a'}}
+      }
+    }
+  });
+}
+
+// ── PLATFORM BAR ──────────────────────────────────────────────────────────────
+const PLAT_DATA={labels:['UBER','DIDI'],orig:[3139,703],rep:[677,241]};
+const platLabelsPlugin={
+  id:'platLabels',
+  afterDatasetsDraw(chart){
+    const{ctx,scales:{y}}=chart;
+    const repMeta=chart.getDatasetMeta(0);   // teal = repossessed (bottom)
+    const darkMeta=chart.getDatasetMeta(1);  // dark = orig-rep (top)
+    PLAT_DATA.labels.forEach((plat,i)=>{
+      const orig=PLAT_DATA.orig[i], rep=PLAT_DATA.rep[i];
+      const tealBar=repMeta.data[i], darkBar=darkMeta.data[i];
+      if(!tealBar||!darkBar)return;
+      ctx.save(); ctx.textAlign='center';
+      // Teal segment: repossession count
+      const tealH=Math.abs(tealBar.base-tealBar.y);
+      if(tealH>16&&rep>0){
+        ctx.font='bold 12px "Space Grotesk",sans-serif';
+        ctx.fillStyle='#ffffff'; ctx.textBaseline='middle';
+        ctx.fillText(rep,tealBar.x,(tealBar.y+tealBar.base)/2);
+      }
+      // Dark segment: origination count
+      const darkH=Math.abs(darkBar.base-darkBar.y);
+      if(darkH>16){
+        ctx.font='bold 12px "Space Grotesk",sans-serif';
+        ctx.fillStyle='rgba(255,255,255,.92)'; ctx.textBaseline='middle';
+        ctx.fillText(orig,darkBar.x,(darkBar.y+darkBar.base)/2);
+      }
+      // % on top
+      const pct=(rep/orig*100).toFixed(1);
+      ctx.font='bold 12px "Space Grotesk",sans-serif';
+      ctx.fillStyle='rgba(31,85,86,.9)'; ctx.textBaseline='bottom';
+      if(darkBar.y>y.top) ctx.fillText(pct+'%',darkBar.x,darkBar.y-4);
+      ctx.restore();
+    });
+  }
+};
+function buildPlatBar(){
+  new Chart(document.getElementById('platBarChart').getContext('2d'),{
+    type:'bar',
+    plugins:[platLabelsPlugin],
+    data:{labels:PLAT_DATA.labels,datasets:[
+      {label:'Repossessed',  data:PLAT_DATA.rep,                                   backgroundColor:'rgba(17,171,171,.90)',borderRadius:0,borderSkipped:'bottom',stack:'A'},
+      {label:'Originations', data:PLAT_DATA.orig.map((v,i)=>v-PLAT_DATA.rep[i]),  backgroundColor:'rgba(31,85,86,.75)', borderRadius:4,borderSkipped:false,    stack:'A'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{
+      legend:{display:true,position:'top',labels:{font:{size:11},color:'#4a6060',boxWidth:14,boxHeight:4,padding:16}},
+      tooltip:{backgroundColor:'rgba(31,85,86,.95)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',borderColor:'rgba(17,171,171,.3)',borderWidth:1,padding:10,
+        callbacks:{label:()=>'',afterBody:items=>{const i=items[0].dataIndex;const orig=PLAT_DATA.orig[i];const rep=PLAT_DATA.rep[i];return[`Originations: ${orig}`,`Repossessed: ${rep}`,'──────────────','Rate: '+(rep/orig*100).toFixed(1)+'%'];}}
+      }
+    },scales:{
+      x:{stacked:true,grid:{display:false},ticks:{font:{size:12,weight:'700'},color:'#1F5556'}},
+      y:{stacked:true,beginAtZero:true,grid:{color:'rgba(31,85,86,.07)'},ticks:{font:{size:10},color:'#8a9a9a'}}
+    }}
+  });
+}
+
+// ── DONUTS ────────────────────────────────────────────────────────────────────
+function buildDonut(id,labels,data,colors){
+  new Chart(document.getElementById(id).getContext('2d'),{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(31,85,86,.95)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',callbacks:{label:i=>` ${i.label}: ${i.raw} (${(i.raw/i.dataset.data.reduce((a,b)=>a+b)*100).toFixed(1)}%)`}}}}});
+}
+function buildEstado(){
+  new Chart(document.getElementById('estadoChart').getContext('2d'),{type:'bar',data:{labels:['Mexico City','Baja Calif.','Nuevo León','Jalisco','Querétaro'],datasets:[{data:[727,118,75,50,8],backgroundColor:['#11ABAB','#1F5556','#4a9898','#8ac8c8','#b8dede'],borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(31,85,86,.95)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',callbacks:{label:i=>` ${i.raw} units (${(i.raw/978*100).toFixed(1)}%)`}}},scales:{x:{grid:{color:'rgba(31,85,86,.07)'},ticks:{font:{size:9},color:'#8a9a9a'}},y:{grid:{display:false},ticks:{font:{size:10},color:'#4a6060'}}}}});
+}
+
+// ── HEATMAP STATE ─────────────────────────────────────────────────────────────
+let hmMode='cum',hmNMode='env',hmGrouping='monthly',hmVisibleYears=new Set(['2024','2025','2026']);
+function setHmMode(m){hmMode=m;['cum','inc','cnt'].forEach(id=>document.getElementById('hm-'+id).classList.toggle('active',id===m));buildHeatmap();}
+function setHmN(mode){hmNMode=mode;document.getElementById('hm-nenv').classList.toggle('active',mode==='env');document.getElementById('hm-norig').classList.toggle('active',mode==='orig');document.getElementById('hm-n-note').textContent=mode==='orig'?'← N = new originations for the month (Originations sheet) — available from Jan 2023':'';buildHeatmap();}
+function toggleHmYear(y){if(hmVisibleYears.has(y))hmVisibleYears.delete(y);else hmVisibleYears.add(y);document.getElementById('hmy-'+y).classList.toggle('active',hmVisibleYears.has(y));buildHeatmap();}
+function setHmGrouping(g){hmGrouping=g;document.getElementById('hmg-monthly').classList.toggle('active',g==='monthly');document.getElementById('hmg-quarterly').classList.toggle('active',g==='quarterly');buildHeatmap();}
+
+function heatColor(t){
+  if(t<=0)return{bg:'#F8F8F8',fg:'#ccc'};
+  let r,g,b;
+  if(t<0.5){const x=t*2;r=Math.round(248+(255-248)*x);g=Math.round(248+(185-248)*x);b=Math.round(248+(80-248)*x);}
+  else{const x=(t-0.5)*2;r=Math.round(255+(210-255)*x);g=Math.round(185+(60-185)*x);b=Math.round(80+(50-80)*x);}
+  const lum=.299*r+.587*g+.114*b;
+  return{bg:'rgb('+r+','+g+','+b+')',fg:lum>140?'#1a2424':'#ffffff'};
+}
+
+function buildHeatmap(){
+  const maxM=36,CELL_W=44,LBL_W=88,N_W=48;
+  let rows=[];
+  if(hmGrouping==='monthly'){
+    Object.keys(VD).forEach(cos=>{
+      const yr=cos.split('-')[1];
+      if(yr==='2022'||yr==='2023')return;
+      if(!hmVisibleYears.has(yr))return;
+      const d=VD[cos];const nE=d.n;const nO=N_ORIG[cos]||null;const N=hmNMode==='orig'?(nO||nE):nE;
+      const[mmC,yyC]=cos.split('-').map(Number);const maxPossM=Math.min(Math.max(0,(2026-yyC)*12+(5-mmC)),36);rows.push({label:cos,curve:d.c,nEnv:nE,N,year:yr,maxPossM});
+    });
+  } else {
+    const qMap={};
+    Object.keys(VD).forEach(cos=>{const yr=cos.split('-')[1];if(yr==='2022'||yr==='2023')return;if(!hmVisibleYears.has(yr))return;const q=getQ(cos);if(!qMap[q])qMap[q]=[];qMap[q].push(cos);});
+    Object.keys(qMap).sort((a,b)=>{const[qa,ya]=a.split('-');const[qb,yb]=b.split('-');return parseInt(ya)!==parseInt(yb)?parseInt(ya)-parseInt(yb):parseInt(qa.slice(1))-parseInt(qb.slice(1));}).forEach(q=>{
+      const m=mergeCosechas(qMap[q],hmNMode);const[qP,yP]=q.split('-');const lastMoQ=parseInt(qP.slice(1))*3;const maxPossM=Math.min(Math.max(0,(2026-parseInt(yP))*12+(5-lastMoQ)),36);rows.push({label:q,curve:m.c,nEnv:m.n,N:m.n,year:yP,maxPossM});
+    });
+  }
+  // Sort by year first, then month — so all 2024 together, then 2025, then 2026
+  rows.sort((a,b)=>{
+    const[ma,ya]=a.label.split('-').map(Number);
+    const[mb,yb]=b.label.split('-').map(Number);
+    return ya!==yb?ya-yb:ma-mb;
+  });
+  // colMaxM = furthest month any visible cohort can physically reach (not just last increment)
+  const activeMaxM=rows.length?Math.max(...rows.map(r=>r.maxPossM)):maxM;
+  const colMaxM=Math.min(activeMaxM,maxM);
+  let html='<table style="border-collapse:collapse;font-family:\'Space Grotesk\',sans-serif;white-space:nowrap;">';
+  html+='<thead><tr>';
+  html+=`<th style="padding:5px 8px;background:#1F5556;color:#fff;font-size:9px;text-align:left;position:sticky;left:0;min-width:${LBL_W}px;z-index:4;">Cohort</th>`;
+  html+=`<th style="padding:5px 6px;background:#0d2e2f;color:rgba(255,255,255,.85);font-size:9px;text-align:center;min-width:${N_W}px;font-weight:800;position:sticky;left:${LBL_W}px;z-index:4;letter-spacing:.04em;">n</th>`;
+  for(let m=0;m<=colMaxM;m++){html+=`<th style="padding:5px 4px;background:#1F5556;color:#fff;font-size:9px;text-align:center;min-width:${CELL_W}px;font-weight:700;">M+${m}</th>`;}
+  html+='</tr></thead><tbody>';
+  let prevYear='';
+  rows.forEach(row=>{
+    const{label,curve,nEnv,N,year}=row;const lastM=lastIncrM(curve);
+    if(year!==prevYear){html+=`<tr><td colspan="${colMaxM+3}" style="background:rgba(31,85,86,.09);padding:3px 8px;font-size:9px;font-weight:700;color:#4a6060;letter-spacing:.08em;">${year}</td></tr>`;prevYear=year;}
+    html+='<tr>';
+    html+=`<td style="padding:2px 8px;background:#fff;font-weight:600;color:#1F5556;font-size:10px;position:sticky;left:0;z-index:2;border-bottom:1px solid rgba(31,85,86,.07);">${label}</td>`;
+    html+=`<td style="padding:2px 6px;background:#e6eef0;color:#1F5556;font-size:9px;text-align:center;border-bottom:1px solid rgba(31,85,86,.1);font-weight:700;position:sticky;left:${LBL_W}px;z-index:2;">${N}</td>`;
+    for(let m=0;m<=colMaxM;m++){
+      // ① future cell — not yet reachable given current date
+      if(m>row.maxPossM){html+=`<td style="background:repeating-linear-gradient(135deg,#ebebeb,#ebebeb 2px,#f5f5f5 2px,#f5f5f5 6px);min-width:${CELL_W}px;border:1px solid rgba(0,0,0,.03);"></td>`;continue;}
+      // carry forward the last known cumulative value (plateau shows same %)
+      const cum=m<curve.length?curve[m]:curve[curve.length-1];
+      const prev=m>0&&(m-1)<curve.length?curve[m-1]:0;
+      const inc=Math.max(0,cum-prev);
+      const recCum=Math.round(cum/100*nEnv);const recInc=Math.round(inc/100*nEnv);
+      // All three views use the same denominator N (n sent or N originations per selector)
+      const cumPct=N>0?recCum/N*100:0;
+      const incPct=N>0?recInc/N*100:0;
+      // ③ blank cell — no repossessions accumulated yet at this month (pyramid leading edge)
+      if(hmMode==='cum'&&recCum===0){html+=`<td title="${label} — M+${m}: 0 recovered" style="background:#f0f0f0;color:#bbb;text-align:center;font-size:9px;font-weight:700;min-width:${CELL_W}px;border:1px solid rgba(0,0,0,.03);">0%</td>`;continue;}
+      if(hmMode==='inc'&&recInc===0){html+=`<td style="background:#f0f0f0;color:#bbb;text-align:center;font-size:9px;font-weight:700;min-width:${CELL_W}px;border:1px solid rgba(0,0,0,.03);">0%</td>`;continue;}
+      if(hmMode==='cnt'&&recInc===0){html+=`<td style="background:#f0f0f0;color:#bbb;text-align:center;font-size:9px;font-weight:700;min-width:${CELL_W}px;border:1px solid rgba(0,0,0,.03);">0</td>`;continue;}
+      // ④ colored value cell
+      let val,t;
+      if(hmMode==='cum'){val=cumPct.toFixed(1)+'%';t=cumPct/100;}
+      else if(hmMode==='inc'){val=incPct.toFixed(1)+'%';t=Math.min(incPct/25,1);}
+      else{val=String(recInc);t=N>0?Math.min(recInc/(N*0.25),1):0;}
+      const cs=heatColor(t);
+      const tip=`${label} — M+${m}: ${recCum} of ${nEnv} sent (${cum.toFixed(1)}% cum.)`;
+      html+=`<td title="${tip}" style="padding:2px 3px;background:${cs.bg};color:${cs.fg};text-align:center;border:1px solid rgba(0,0,0,.04);font-size:9px;font-weight:600;cursor:default;min-width:${CELL_W}px;">${val}</td>`;
+    }
+    html+='</tr>';
+  });
+  // Wtd avg row
+  const totalNAll=rows.reduce((s,r)=>s+r.N,0);
+  html+=`<tr><td colspan="${colMaxM+3}" style="height:3px;background:#1F5556;padding:0;"></td></tr><tr>`;
+  html+=`<td style="padding:2px 8px;background:#1F5556;color:#fff;font-size:9px;font-weight:700;position:sticky;left:0;z-index:3;">Wtd. Avg.</td>`;
+  html+=`<td style="padding:2px 6px;background:#0d2e2f;color:rgba(255,255,255,.7);font-size:9px;text-align:center;font-weight:700;position:sticky;left:${LBL_W}px;z-index:3;">${totalNAll}</td>`;
+  for(let m=0;m<=colMaxM;m++){
+    // Only cohorts that have had enough time to reach month M
+    const el=rows.filter(r=>r.maxPossM>=m);
+    const eN=el.reduce((s,r)=>s+r.N,0);
+    // Correct: sum ABSOLUTE repossessions (using nEnv as denominator for the curve),
+    // then divide by total N (which may be nEnv or N_ORIG depending on mode selector).
+    // This avoids mixing denominators.
+    const totRec=el.reduce((s,r)=>{const v=m<r.curve.length?r.curve[m]:r.curve[r.curve.length-1];return s+Math.round(v/100*r.nEnv);},0);
+    const totRecPrev=m>0?el.reduce((s,r)=>{const v=(m-1)<r.curve.length?r.curve[m-1]:r.curve[r.curve.length-1];return s+Math.round(v/100*r.nEnv);},0):0;
+    const wAvg=eN>0?totRec/eN*100:0;
+    const wPrev=eN>0?totRecPrev/eN*100:0;
+    const inc=Math.max(0,wAvg-wPrev);const rCum=totRec;
+    let val,t;
+    if(hmMode==='cum'){
+      if(totRec===0){html+=`<td style="background:#fafafa;min-width:${CELL_W}px;border:1px solid rgba(0,0,0,.03);"></td>`;continue;}
+      val=wAvg.toFixed(1)+'%';t=wAvg/100;
+    } else if(hmMode==='inc'){
+      if(inc<0.5){html+=`<td style="background:#fafafa;min-width:${CELL_W}px;border:1px solid rgba(0,0,0,.03);"></td>`;continue;}
+      val=inc.toFixed(1)+'%';t=Math.min(inc/25,1);
+    } else {
+      if(rCum===0){html+=`<td style="background:#fafafa;min-width:${CELL_W}px;border:1px solid rgba(0,0,0,.03);"></td>`;continue;}
+      val=String(rCum);t=eN>0?Math.min(rCum/(eN*0.25),1):0;
+    }
+    const cs=heatColor(t);
+    html+=`<td style="padding:2px 3px;background:${cs.bg};color:${cs.fg};text-align:center;border:1px solid rgba(0,0,0,.04);font-size:9px;font-weight:800;min-width:${CELL_W}px;">${val}</td>`;
+  }
+  html+='</tr></tbody></table>';
+  document.getElementById('hmContainer').innerHTML=html;
+}
+
+// ── COSECHA BAR ───────────────────────────────────────────────────────────────
+let cosechaYear='all';
+let _cosechaChartInst=null;
+function setCosechaYear(y){
+  cosechaYear=y;
+  ['all','2024','2025','2026'].forEach(v=>document.getElementById('cb-'+v).classList.toggle('active',v===y));
+  buildCosechaBar();
+}
+function buildCosechaBar(){
+  const rows=COSECHA_TABLE.filter(d=>d.t>=5&&(cosechaYear==='all'||d.c.split('-')[1]===cosechaYear));
+  const labels=rows.map(d=>d.c);
+  if(_cosechaChartInst){_cosechaChartInst.destroy();_cosechaChartInst=null;}
+  _cosechaChartInst=new Chart(document.getElementById('cosechaBarChart').getContext('2d'),{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'Sent to Recovery',data:rows.map(d=>d.t),backgroundColor:'rgba(31,85,86,.55)',borderRadius:2,borderSkipped:false},
+      {label:'Repossessed',     data:rows.map(d=>d.ca),backgroundColor:'rgba(17,171,171,.85)',borderRadius:2,borderSkipped:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{
+      legend:{display:true,position:'top',labels:{font:{size:11},color:'#4a6060',boxWidth:14,boxHeight:4,padding:16}},
+      tooltip:{backgroundColor:'rgba(31,85,86,.95)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,
+        callbacks:{label:i=>` ${i.dataset.label}: ${i.raw}`,afterBody:items=>{const d=rows[items[0].dataIndex];const pct=(d.ca/d.t*100).toFixed(1);return['──────────────',`Repossessed: ${d.ca}/${d.t} (${pct}%)`,`Pending: ${d.p}`];}}}
+    },scales:{
+      x:{grid:{display:false},ticks:{font:{size:9},color:'#8a9a9a',maxRotation:45}},
+      y:{beginAtZero:true,grid:{color:'rgba(31,85,86,.07)'},ticks:{font:{size:10},color:'#8a9a9a'}}
+    }}
+  });
+}
+
+
+// ── TABLE ─────────────────────────────────────────────────────────────────────
+let tblGrouping='monthly';
+let tblYear='all';
+function setTblGrouping(g){
+  tblGrouping=g;
+  document.getElementById('tbl-monthly').classList.toggle('active',g==='monthly');
+  document.getElementById('tbl-quarterly').classList.toggle('active',g==='quarterly');
+  buildTable();
+  buildOrigRates();
+}
+function setTblYear(y){
+  tblYear=y;
+  ['all','2024','2025','2026'].forEach(v=>document.getElementById('tbl-yr-'+v).classList.toggle('active',v===y));
+  buildTable();
+  buildOrigRates();
+}
+
+function pctCell(v){
+  const cls=v>=40?'pct-high':v>=20?'pct-mid':'pct-low';
+  return `<span class="pct-cell ${cls}">${v.toFixed(1)}%</span>`;
+}
+function pctCellInv(v){
+  const cls=v>=40?'pct-low':v>=20?'pct-mid':'pct-high';
+  return `<span class="pct-cell ${cls}">${v.toFixed(1)}%</span>`;
+}
+
+function buildTable(){
+  const allRows=COSECHA_TABLE.filter(d=>{const yr=d.c.split('-')[1];return yr!=='2022'&&yr!=='2023'&&(tblYear==='all'||yr===tblYear);});
+  let rows=[];
+  if(tblGrouping==='monthly'){
+    rows=allRows.map(d=>({label:d.c,t:d.t,ca:d.ca,p:d.p,nOrig:d.nOrig}));
+  } else {
+    const qMap={};
+    allRows.forEach(d=>{
+      const q=getQ(d.c);
+      if(!qMap[q])qMap[q]={label:q,t:0,ca:0,p:0,nOrig:0};
+      qMap[q].t+=d.t;qMap[q].ca+=d.ca;qMap[q].p+=d.p;qMap[q].nOrig+=d.nOrig;
+    });
+    rows=Object.keys(qMap).sort((a,b)=>{
+      const[qa,ya]=a.split('-');const[qb,yb]=b.split('-');
+      return parseInt(ya)!==parseInt(yb)?parseInt(ya)-parseInt(yb):parseInt(qa.slice(1))-parseInt(qb.slice(1));
+    }).map(k=>qMap[k]);
+  }
+  let html='';
+  let totT=0,totCa=0,totP=0,totOrig=0;
+  rows.forEach(r=>{
+    const recPct=r.t>0?r.ca/r.t*100:0;
+    totT+=r.t;totCa+=r.ca;totP+=r.p;totOrig+=r.nOrig;
+    const sentPct=r.nOrig>0?r.t/r.nOrig*100:0;
+    const recOrigPct=r.nOrig>0?r.ca/r.nOrig*100:0;
+    html+=`<tr><td>${r.label}</td><td>${r.nOrig||'—'}</td><td>${r.t}</td><td>${r.ca}</td><td>${r.p}</td><td>${pctCell(recPct)}</td><td>${pctCellInv(sentPct)}</td><td>${pctCellInv(recOrigPct)}</td></tr>`;
+  });
+  const totRecPct=totT>0?totCa/totT*100:0;
+  const totSentPct=totOrig>0?totT/totOrig*100:0;
+  const totRecOrigPct=totOrig>0?totCa/totOrig*100:0;
+  html+=`<tr class="tr-total"><td>Total</td><td>${totOrig}</td><td>${totT}</td><td>${totCa}</td><td>${totP}</td><td>${pctCell(totRecPct)}</td><td>${pctCellInv(totSentPct)}</td><td>${pctCellInv(totRecOrigPct)}</td></tr>`;
+  document.getElementById('cosechaTableBody').innerHTML=html;
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+let _origRatesChartInst=null;
+function buildOrigRates(){
+  const allRows=COSECHA_TABLE.filter(d=>{const yr=d.c.split('-')[1];return yr!=='2022'&&yr!=='2023'&&(tblYear==='all'||yr===tblYear);});
+  let rows=[];
+  if(tblGrouping==='monthly'){
+    rows=allRows.map(d=>({label:d.c,t:d.t,ca:d.ca,nOrig:d.nOrig}));
+  } else {
+    const qMap={};
+    allRows.forEach(d=>{
+      const q=getQ(d.c);
+      if(!qMap[q])qMap[q]={label:q,t:0,ca:0,nOrig:0};
+      qMap[q].t+=d.t;qMap[q].ca+=d.ca;qMap[q].nOrig+=d.nOrig;
+    });
+    rows=Object.keys(qMap).sort((a,b)=>{
+      const[qa,ya]=a.split('-');const[qb,yb]=b.split('-');
+      return parseInt(ya)!==parseInt(yb)?parseInt(ya)-parseInt(yb):parseInt(qa.slice(1))-parseInt(qb.slice(1));
+    }).map(k=>qMap[k]);
+  }
+  const labels=rows.map(r=>r.label);
+  const origs=rows.map(r=>r.nOrig);
+  const sents=rows.map(r=>r.t);
+  const repos=rows.map(r=>r.ca);
+  const sentPcts=rows.map(r=>r.nOrig>0?+(r.t/r.nOrig*100).toFixed(1):0);
+  const recPcts=rows.map(r=>r.nOrig>0?+(r.ca/r.nOrig*100).toFixed(1):0);
+  const ctx=document.getElementById('origRatesChart');
+  if(!ctx)return;
+  if(_origRatesChartInst){_origRatesChartInst.destroy();_origRatesChartInst=null;}
+  _origRatesChartInst=new Chart(ctx.getContext('2d'),{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'Originations',data:origs,backgroundColor:'rgba(166,166,166,0.35)',borderColor:'rgba(166,166,166,0.6)',borderWidth:1,borderRadius:3,yAxisID:'y',order:3,barPercentage:0.85,categoryPercentage:0.8},
+      {label:'Sent to Recovery',data:sents,backgroundColor:'rgba(31,85,86,0.65)',borderColor:'rgba(31,85,86,0)',borderWidth:0,borderRadius:3,yAxisID:'y',order:2,barPercentage:0.85,categoryPercentage:0.8},
+      {label:'Repossessed',data:repos,backgroundColor:'rgba(17,171,171,0.85)',borderColor:'rgba(17,171,171,0)',borderWidth:0,borderRadius:3,yAxisID:'y',order:1,barPercentage:0.85,categoryPercentage:0.8},
+      {label:'% Sent / Orig',data:sentPcts,type:'line',borderColor:'rgba(31,85,86,0.9)',backgroundColor:'transparent',borderWidth:2,pointRadius:2,pointHoverRadius:5,tension:0.3,yAxisID:'yPct',order:0},
+      {label:'% Reposs / Orig',data:recPcts,type:'line',borderColor:'rgba(17,171,171,0.9)',backgroundColor:'transparent',borderWidth:2,pointRadius:2,pointHoverRadius:5,tension:0.3,yAxisID:'yPct',order:0}
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{labels:{font:{family:'Space Grotesk',size:11},color:'#1a2424',padding:14,usePointStyle:true}},
+        tooltip:{callbacks:{
+          label:c=>{
+            if(c.dataset.yAxisID==='yPct')return `${c.dataset.label}: ${c.parsed.y.toFixed(1)}%`;
+            const orig=origs[c.dataIndex];
+            const pct=orig>0?(c.parsed.y/orig*100).toFixed(1):'—';
+            return `${c.dataset.label}: ${c.parsed.y} (${pct}% of orig)`;
+          }
+        }}
+      },
+      scales:{
+        x:{ticks:{font:{family:'Space Grotesk',size:10},color:'#4a6060',maxRotation:45,minRotation:35},grid:{display:false}},
+        y:{position:'left',ticks:{font:{family:'Space Grotesk',size:10},color:'#4a6060'},grid:{color:'rgba(31,85,86,.07)'},beginAtZero:true,title:{display:true,text:'Units',font:{family:'Space Grotesk',size:10},color:'#8a9a9a'}},
+        yPct:{position:'right',ticks:{font:{family:'Space Grotesk',size:10},color:'#8a9a9a',callback:v=>v+'%'},grid:{display:false},beginAtZero:true,title:{display:true,text:'% of Originations',font:{family:'Space Grotesk',size:10},color:'#8a9a9a'}}
+      }
+    }
+  });
+}
+
+window.addEventListener('load', async ()=>{
+  // Try to load fresh data from data.json (GitHub Pages / local server)
+  try {
+    const resp = await fetch('data.json');
+    if(resp.ok){
+      const d = await resp.json();
+      VD = d.vd || VD;
+      N_ORIG = d.nOrig || N_ORIG;
+      if(d.cosechaTable) COSECHA_TABLE = d.cosechaTable.filter(r=>r.t>0);
+      if(d.origRec) ORIG_REC = d.origRec;
+      // Update platform donut if available
+      if(d.platTotals){
+        const uber = d.platTotals['UBER']||0;
+        const didi = d.platTotals['DIDI']||0;
+        window._platData = [uber, didi];
+      }
+      const ts = d.generated ? new Date(d.generated).toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}) : null;
+      if(ts){ const el=document.getElementById('data-ts'); if(el) el.textContent='Datos: '+ts; }
+    }
+  } catch(e){ console.log('Usando datos embebidos'); }
+  buildVintage();
+  buildOrigRec();
+  buildPlatBar();
+  const pd = window._platData || [737,241];
+  buildDonut('platChart',['UBER','DIDI'],pd,['#11ABAB','#1F5556']);
+  buildDonut('sexoChart',['Male','Female'],[958,20],['#1F5556','#11ABAB']);
+  buildEstado();
+  buildHeatmap();
+  buildCosechaBar();
+  buildTable();
+  buildOrigRates();
+});
+</script>
+</body>
+</html>
