@@ -737,12 +737,12 @@ function buildOrigRates(){
 let _origActivaChartInst=null;
 function buildOrigRatesActiva(){
   // Construir lista de meses con al menos uno de los dos datos
-  const allKeys=Array.from(new Set([...Object.keys(N_ACTIVA),...Object.keys(N_INVRECUP)])).sort();
+  const allKeys=Array.from(new Set([...Object.keys(N_ACTIVA),...Object.keys(N_INVRECUP)])).sort((a,b)=>{const[ma,ya]=a.split('-');const[mb,yb]=b.split('-');return parseInt(ya)!==parseInt(yb)?parseInt(ya)-parseInt(yb):parseInt(ma)-parseInt(mb);});
   const rows=allKeys.filter(k=>{
     const yr=k.split('-')[1];
     return yr!=='2022'&&yr!=='2023'&&(tblYear==='all'||yr===tblYear);
   }).map(k=>({label:k,activa:N_ACTIVA[k]||0,inv:N_INVRECUP[k]||0}))
-    .filter(r=>r.activa>0||r.inv>0);
+    .filter(r=>r.inv>0);
   const pcts=rows.map(r=>r.activa>0?+(r.inv/r.activa*100).toFixed(2):null);
   const ctx=document.getElementById('origActivaChart');if(!ctx)return;
   if(_origActivaChartInst){_origActivaChartInst.destroy();_origActivaChartInst=null;}
