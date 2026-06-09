@@ -331,8 +331,8 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
   <div class="chart-card" style="margin-bottom:28px;">
     <div class="chart-card-head forest">
       <div>
-        <div class="chart-card-title">Recovery Rates vs. Active Fleet — by Cohort</div>
-        <div class="chart-card-meta">% Sent to Recovery / Active Units &nbsp;·&nbsp; % Repossessed / Active Units</div>
+        <div class="chart-card-title">Recuperados en Inventario vs. Flota Activa — por Mes</div>
+        <div class="chart-card-meta">Balance de unidades recuperadas en inventario &nbsp;·&nbsp; Flota activa mensual</div>
       </div>
     </div>
     <div class="chart-card-body">
@@ -349,8 +349,8 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
   <div class="chart-card" style="margin-bottom:28px;">
     <div class="chart-card-head forest">
       <div>
-        <div class="chart-card-title">Originations (base) + Repossessed on top · % Repossessed/Orig as line (right axis)</div>
-        <div class="chart-card-meta">Units per calendar month · number above bar = total originations · teal = collected</div>
+        <div class="chart-card-title">Originaciones vs Recuperados</div>
+        <div class="chart-card-meta">% Recuperados / Originaciones (eje derecho)</div>
       </div>
     </div>
     <div class="chart-card-body">
@@ -489,6 +489,7 @@ let N_ACTIVA = {
   "07-2025":2504,"08-2025":2623,"09-2025":2730,"10-2025":2802,"11-2025":2966,"12-2025":3051,
   "01-2026":3111,"02-2026":3215,"03-2026":3300,"04-2026":3384
 };
+let N_INVRECUP = {};
 let ORIG_REC = {
   labels: ['Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26','Mar 26','Apr 26'],
   new_v:  [97,99,136,161,157,195,199,166,180,206,211,215,175,201,177,218],
@@ -735,47 +736,38 @@ function buildOrigRates(){
 // ── ORIG RATES — ACTIVE UNITS ─────────────────────────────────────────────────
 let _origActivaChartInst=null;
 function buildOrigRatesActiva(){
-  const allRows=COSECHA_TABLE.filter(d=>{const yr=d.c.split('-')[1];return yr!=='2022'&&yr!=='2023'&&(tblYear==='all'||yr===tblYear);});
-  let rows=[];
-  if(tblGrouping==='monthly'){rows=allRows.map(d=>({label:d.c,t:d.t,ca:d.ca,nOrig:d.nOrig,nActiva:N_ACTIVA[d.c]||d.nOrig}));}
-  else{
-    const qMap={};allRows.forEach(d=>{const q=getQ(d.c);if(!qMap[q])qMap[q]={label:q,t:0,ca:0,nOrig:0,nActiva:0};qMap[q].t+=d.t;qMap[q].ca+=d.ca;qMap[q].nOrig+=d.nOrig;qMap[q].nActiva+=(N_ACTIVA[d.c]||d.nOrig);});
-    rows=Object.keys(qMap).sort((a,b)=>{const[qa,ya]=a.split('-');const[qb,yb]=b.split('-');return parseInt(ya)!==parseInt(yb)?parseInt(ya)-parseInt(yb):parseInt(qa.slice(1))-parseInt(qb.slice(1));}).map(k=>qMap[k]);
-  }
-  const activas=rows.map(r=>r.nActiva);
-  const sents=rows.map(r=>r.t);
-  const repos=rows.map(r=>r.ca);
-  const sentPcts=rows.map(r=>r.nActiva>0?+(r.t/r.nActiva*100).toFixed(2):0);
-  const recPcts=rows.map(r=>r.nActiva>0?+(r.ca/r.nActiva*100).toFixed(2):0);
+  // Construir lista de meses con al menos uno de los dos datos
+  const allKeys=Array.from(new Set([...Object.keys(N_ACTIVA),...Object.keys(N_INVRECUP)])).sort();
+  const rows=allKeys.filter(k=>{
+    const yr=k.split('-')[1];
+    return yr!=='2022'&&yr!=='2023'&&(tblYear==='all'||yr===tblYear);
+  }).map(k=>({label:k,activa:N_ACTIVA[k]||0,inv:N_INVRECUP[k]||0}))
+    .filter(r=>r.activa>0||r.inv>0);
   const ctx=document.getElementById('origActivaChart');if(!ctx)return;
   if(_origActivaChartInst){_origActivaChartInst.destroy();_origActivaChartInst=null;}
   _origActivaChartInst=new Chart(ctx.getContext('2d'),{
     type:'bar',
     data:{labels:rows.map(r=>r.label),datasets:[
-      {label:'Active Fleet',data:activas,backgroundColor:'rgba(166,166,166,0.35)',borderColor:'rgba(166,166,166,0.6)',borderWidth:1,borderRadius:3,yAxisID:'y',order:3,barPercentage:0.85,categoryPercentage:0.8},
-      {label:'Sent to Recovery',data:sents,backgroundColor:'rgba(31,85,86,0.65)',borderWidth:0,borderRadius:3,yAxisID:'y',order:2,barPercentage:0.85,categoryPercentage:0.8},
-      {label:'Repossessed',data:repos,backgroundColor:'rgba(17,171,171,0.85)',borderWidth:0,borderRadius:3,yAxisID:'y',order:1,barPercentage:0.85,categoryPercentage:0.8},
-      {label:'% Sent / Active',data:sentPcts,type:'line',borderColor:'rgba(31,85,86,0.9)',backgroundColor:'transparent',borderWidth:2,pointRadius:2,pointHoverRadius:5,tension:0.3,yAxisID:'yPct',order:0},
-      {label:'% Reposs / Active',data:recPcts,type:'line',borderColor:'rgba(17,171,171,0.9)',backgroundColor:'transparent',borderWidth:2,pointRadius:2,pointHoverRadius:5,tension:0.3,yAxisID:'yPct',order:0}
+      {label:'Flota Activa',data:rows.map(r=>r.activa),backgroundColor:'rgba(166,166,166,0.30)',borderColor:'rgba(166,166,166,0.55)',borderWidth:1,borderRadius:3,yAxisID:'y',order:2,barPercentage:0.75,categoryPercentage:0.8},
+      {label:'Recuperados en Inventario',data:rows.map(r=>r.inv),backgroundColor:'rgba(17,171,171,0.80)',borderColor:'rgba(17,171,171,1)',borderWidth:0,borderRadius:3,yAxisID:'y',order:1,barPercentage:0.75,categoryPercentage:0.8}
     ]},
     options:{
       responsive:true,maintainAspectRatio:false,
       interaction:{mode:'index',intersect:false},
       plugins:{
         legend:{labels:{font:{family:'Space Grotesk',size:11},color:'#1a2424',padding:14,usePointStyle:true}},
-        tooltip:{callbacks:{label:c=>{if(c.dataset.yAxisID==='yPct')return `${c.dataset.label}: ${c.parsed.y.toFixed(2)}%`;const act=activas[c.dataIndex];const pct=act>0?(c.parsed.y/act*100).toFixed(2):'—';return `${c.dataset.label}: ${c.parsed.y} (${pct}% of active)`;},afterBody:items=>{const i=items[0].dataIndex;return['─────────────────────',`Active fleet: ${activas[i].toLocaleString()}`];}}}
+        tooltip:{callbacks:{label:c=>{const r=rows[c.dataIndex];const pct=r.activa>0?` (${(r.inv/r.activa*100).toFixed(1)}% de flota)`:'';if(c.dataset.label==='Recuperados en Inventario')return `${c.dataset.label}: ${c.parsed.y.toLocaleString()}${pct}`;return `${c.dataset.label}: ${c.parsed.y.toLocaleString()}`;}}}
       },
       scales:{
         x:{ticks:{font:{family:'Space Grotesk',size:10},color:'#4a6060',maxRotation:45,minRotation:35},grid:{display:false}},
-        y:{position:'left',ticks:{font:{family:'Space Grotesk',size:10},color:'#4a6060'},grid:{color:'rgba(31,85,86,.07)'},beginAtZero:true,title:{display:true,text:'Units',font:{family:'Space Grotesk',size:10},color:'#8a9a9a'}},
-        yPct:{position:'right',ticks:{font:{family:'Space Grotesk',size:10},color:'#8a9a9a',callback:v=>v.toFixed(1)+'%'},grid:{display:false},beginAtZero:true,title:{display:true,text:'% of Active Units',font:{family:'Space Grotesk',size:10},color:'#8a9a9a'}}
+        y:{position:'left',ticks:{font:{family:'Space Grotesk',size:10},color:'#4a6060'},grid:{color:'rgba(31,85,86,.07)'},beginAtZero:true,title:{display:true,text:'Unidades',font:{family:'Space Grotesk',size:10},color:'#8a9a9a'}}
       }
     }
   });
 }
 // ── INIT ──────────────────────────────────────────────────────────────────────
 window.addEventListener('load',async()=>{
-  try{const resp=await fetch('data.json');if(resp.ok){const d=await resp.json();VD=d.vd||VD;N_ORIG=d.nOrig||N_ORIG;if(d.cosechaTable)COSECHA_TABLE=d.cosechaTable.filter(r=>r.t>0);if(d.origRec)ORIG_REC=d.origRec;if(d.platTotals){const uber=d.platTotals['UBER']||0;const didi=d.platTotals['DIDI']||0;window._platData=[uber,didi];}const ts=d.generated?new Date(d.generated).toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}):null;if(ts){const el=document.getElementById('data-ts');if(el)el.textContent='Datos: '+ts;}}}catch(e){console.log('Usando datos embebidos');}
+  try{const resp=await fetch('data.json');if(resp.ok){const d=await resp.json();VD=d.vd||VD;N_ORIG=d.nOrig||N_ORIG;if(d.nActiva)N_ACTIVA=d.nActiva;if(d.invRecup)N_INVRECUP=d.invRecup;if(d.cosechaTable)COSECHA_TABLE=d.cosechaTable.filter(r=>r.t>0);if(d.origRec)ORIG_REC=d.origRec;if(d.platTotals){const uber=d.platTotals['UBER']||0;const didi=d.platTotals['DIDI']||0;window._platData=[uber,didi];}const ts=d.generated?new Date(d.generated).toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}):null;if(ts){const el=document.getElementById('data-ts');if(el)el.textContent='Datos: '+ts;}}}catch(e){console.log('Usando datos embebidos');}
   buildVintage();
   buildCosechaBar();
   buildTable();
