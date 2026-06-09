@@ -743,24 +743,27 @@ function buildOrigRatesActiva(){
     return yr!=='2022'&&yr!=='2023'&&(tblYear==='all'||yr===tblYear);
   }).map(k=>({label:k,activa:N_ACTIVA[k]||0,inv:N_INVRECUP[k]||0}))
     .filter(r=>r.activa>0||r.inv>0);
+  const pcts=rows.map(r=>r.activa>0?+(r.inv/r.activa*100).toFixed(2):null);
   const ctx=document.getElementById('origActivaChart');if(!ctx)return;
   if(_origActivaChartInst){_origActivaChartInst.destroy();_origActivaChartInst=null;}
   _origActivaChartInst=new Chart(ctx.getContext('2d'),{
     type:'bar',
     data:{labels:rows.map(r=>r.label),datasets:[
-      {label:'Flota Activa',data:rows.map(r=>r.activa),backgroundColor:'rgba(166,166,166,0.30)',borderColor:'rgba(166,166,166,0.55)',borderWidth:1,borderRadius:3,yAxisID:'y',order:2,barPercentage:0.75,categoryPercentage:0.8},
-      {label:'Recuperados en Inventario',data:rows.map(r=>r.inv),backgroundColor:'rgba(17,171,171,0.80)',borderColor:'rgba(17,171,171,1)',borderWidth:0,borderRadius:3,yAxisID:'y',order:1,barPercentage:0.75,categoryPercentage:0.8}
+      {label:'Flota Activa',data:rows.map(r=>r.activa),backgroundColor:'rgba(166,166,166,0.30)',borderColor:'rgba(166,166,166,0.55)',borderWidth:1,borderRadius:3,yAxisID:'y',order:3,barPercentage:0.75,categoryPercentage:0.8},
+      {label:'Recuperados en Inventario',data:rows.map(r=>r.inv),backgroundColor:'rgba(17,171,171,0.80)',borderColor:'rgba(17,171,171,1)',borderWidth:0,borderRadius:3,yAxisID:'y',order:2,barPercentage:0.75,categoryPercentage:0.8},
+      {label:'% Inv / Flota',data:pcts,type:'line',borderColor:'rgba(230,160,30,0.9)',backgroundColor:'transparent',borderWidth:2,pointRadius:2,pointHoverRadius:5,tension:0.3,yAxisID:'yPct',order:1,spanGaps:true}
     ]},
     options:{
       responsive:true,maintainAspectRatio:false,
       interaction:{mode:'index',intersect:false},
       plugins:{
         legend:{labels:{font:{family:'Space Grotesk',size:11},color:'#1a2424',padding:14,usePointStyle:true}},
-        tooltip:{callbacks:{label:c=>{const r=rows[c.dataIndex];const pct=r.activa>0?` (${(r.inv/r.activa*100).toFixed(1)}% de flota)`:'';if(c.dataset.label==='Recuperados en Inventario')return `${c.dataset.label}: ${c.parsed.y.toLocaleString()}${pct}`;return `${c.dataset.label}: ${c.parsed.y.toLocaleString()}`;}}}
+        tooltip:{callbacks:{label:c=>{if(c.dataset.yAxisID==='yPct')return `${c.dataset.label}: ${c.parsed.y!=null?c.parsed.y.toFixed(2)+'%':'—'}`;return `${c.dataset.label}: ${c.parsed.y.toLocaleString()}`;}}}
       },
       scales:{
         x:{ticks:{font:{family:'Space Grotesk',size:10},color:'#4a6060',maxRotation:45,minRotation:35},grid:{display:false}},
-        y:{position:'left',ticks:{font:{family:'Space Grotesk',size:10},color:'#4a6060'},grid:{color:'rgba(31,85,86,.07)'},beginAtZero:true,title:{display:true,text:'Unidades',font:{family:'Space Grotesk',size:10},color:'#8a9a9a'}}
+        y:{position:'left',ticks:{font:{family:'Space Grotesk',size:10},color:'#4a6060'},grid:{color:'rgba(31,85,86,.07)'},beginAtZero:true,title:{display:true,text:'Unidades',font:{family:'Space Grotesk',size:10},color:'#8a9a9a'}},
+        yPct:{position:'right',ticks:{font:{family:'Space Grotesk',size:10},color:'#b08020',callback:v=>v.toFixed(1)+'%'},grid:{display:false},beginAtZero:true,title:{display:true,text:'% Inv / Flota',font:{family:'Space Grotesk',size:10},color:'#b08020'}}
       }
     }
   });
