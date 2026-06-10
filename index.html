@@ -481,8 +481,10 @@ let COSECHA_TABLE = [
   {c:'09-2025',t:62,ca:51,p:11,nOrig:180},{c:'10-2025',t:67,ca:55,p:12,nOrig:206},
   {c:'11-2025',t:56,ca:43,p:13,nOrig:211},{c:'12-2025',t:28,ca:17,p:11,nOrig:215},
   {c:'01-2026',t:22,ca:16,p:6,nOrig:175},{c:'02-2026',t:2,ca:1,p:1,nOrig:201},
-  {c:'03-2026',t:2,ca:2,p:0,nOrig:177}
-].filter(d=>d.t>0);
+  {c:'03-2026',t:2,ca:2,p:0,nOrig:177},
+  {c:'04-2026',t:0,ca:0,p:0,nOrig:218},
+  {c:'05-2026',t:0,ca:0,p:0,nOrig:171}
+].filter(d=>d.t>0||d.nOrig>0);
 // ── COLORS ────────────────────────────────────────────────────────────────────
 function hslHex(h,s,l){s/=100;l/=100;const a=s*Math.min(l,1-l);const f=n=>{const k=(n+h/30)%12;const c=l-a*Math.max(Math.min(k-3,9-k,1),-1);return Math.round(255*c).toString(16).padStart(2,'0');};return '#'+f(0)+f(8)+f(4);}
 const YEAR_PAL={'2022':{h:270,s:55,lb:42},'2023':{h:210,s:65,lb:35},'2024':{h:150,s:60,lb:32},'2025':{h:35,s:85,lb:38},'2026':{h:5,s:75,lb:42}};
@@ -644,9 +646,9 @@ function buildHeatmap(){
     if(allVals.length>0){allVals.sort((a,b)=>a-b);const p90=allVals[Math.floor(allVals.length*0.9)];hmActivaMax=Math.max(p90*1.1,1);}
   }
   let html='<table style="border-collapse:collapse;font-family:\'Space Grotesk\',sans-serif;white-space:nowrap;"><thead><tr>';
-  html+=`<th style="padding:5px 8px;background:#1F5556;color:#fff;font-size:9px;text-align:left;position:sticky;left:0;min-width:${LBL_W}px;z-index:4;">Cohort</th>`;
-  html+=`<th style="padding:5px 6px;background:#0d2e2f;color:rgba(255,255,255,.85);font-size:9px;text-align:center;min-width:${N_W}px;font-weight:800;position:sticky;left:${LBL_W}px;z-index:4;letter-spacing:.04em;">n</th>`;
-  for(let m=0;m<=colMaxM;m++)html+=`<th style="padding:5px 4px;background:#1F5556;color:#fff;font-size:9px;text-align:center;min-width:${CELL_W}px;font-weight:700;">M+${m}</th>`;
+  html+=`<th style="padding:5px 8px;background:#1F5556;color:#fff;font-size:9px;text-align:left;position:sticky;left:0;top:0;min-width:${LBL_W}px;z-index:7;">Cohort</th>`;
+  html+=`<th style="padding:5px 6px;background:#0d2e2f;color:rgba(255,255,255,.85);font-size:9px;text-align:center;min-width:${N_W}px;font-weight:800;position:sticky;left:${LBL_W}px;top:0;z-index:7;letter-spacing:.04em;">n</th>`;
+  for(let m=0;m<=colMaxM;m++)html+=`<th style="padding:5px 4px;background:#1F5556;color:#fff;font-size:9px;text-align:center;min-width:${CELL_W}px;font-weight:700;position:sticky;top:0;z-index:3;">M+${m}</th>`;
   html+='</tr></thead><tbody>';let prevYear='';
   rows.forEach(row=>{
     const{label,curve,nEnv,N,year}=row;
@@ -788,7 +790,7 @@ window.addEventListener('load',async()=>{
     VD=d.vd||VD;N_ORIG=d.nOrig||N_ORIG;
     if(d.nActiva)N_ACTIVA=d.nActiva;
     if(d.invRecup)N_INVRECUP=d.invRecup;
-    if(d.cosechaTable)COSECHA_TABLE=d.cosechaTable.filter(r=>r.t>0);
+    if(d.cosechaTable)COSECHA_TABLE=d.cosechaTable.filter(r=>r.t>0||r.nOrig>0);
     if(d.origRec)ORIG_REC=d.origRec;
     if(d.lastDataMonth){LAST_DATA_MONTH=d.lastDataMonth;
       const MNAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
