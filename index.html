@@ -290,7 +290,20 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
   </div>
   <hr class="divider">
 
-  <!-- COSECHA BAR — after Cohort Detail -->
+  <!-- ORIG RATES — pegado debajo de Cohort Detail -->
+  <div class="chart-card" style="margin-bottom:16px;">
+    <div class="chart-card-head forest">
+      <div>
+        <div class="chart-card-title">Recovery Rates vs. Originations — by Cohort</div>
+        <div class="chart-card-meta">% Sent to Recovery / Originations &nbsp;·&nbsp; % Repossessed / Originations</div>
+      </div>
+    </div>
+    <div class="chart-card-body">
+      <div style="position:relative;width:100%;height:320px;"><canvas id="origRatesChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- COSECHA BAR -->
   <div class="section-head">
     <span>Cohorts — Contracts Sent vs Effectively Collected</span>
     <span class="section-note">Cohorts 2024+ with ≥5 contracts</span>
@@ -311,20 +324,6 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
     </div>
     <div class="chart-card-body">
       <div style="position:relative;width:100%;height:300px;"><canvas id="cosechaBarChart"></canvas></div>
-    </div>
-  </div>
-  <hr class="divider">
-
-  <!-- CHANGE 1: ORIG RATES moved here -->
-  <div class="chart-card" style="margin-bottom:16px;">
-    <div class="chart-card-head forest">
-      <div>
-        <div class="chart-card-title">Recovery Rates vs. Originations — by Cohort</div>
-        <div class="chart-card-meta">% Sent to Recovery / Originations &nbsp;·&nbsp; % Repossessed / Originations</div>
-      </div>
-    </div>
-    <div class="chart-card-body">
-      <div style="position:relative;width:100%;height:320px;"><canvas id="origRatesChart"></canvas></div>
     </div>
   </div>
   <!-- ACTIVE UNITS RATES CHART -->
