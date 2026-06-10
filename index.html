@@ -119,25 +119,25 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
   <div class="kpi-grid">
     <div class="kpi-card">
       <div class="kpi-label">Contracts Sent</div>
-      <div class="kpi-value">1,290</div>
+      <div class="kpi-value" id="kpi-sent">1,357</div>
       <div class="kpi-sub">Total in repossession portfolio</div>
       <div class="kpi-bar" style="background:rgba(31,85,86,.12);"><div style="width:100%;height:100%;background:var(--forest);border-radius:2px;"></div></div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Effectively Collected</div>
-      <div class="kpi-value" style="color:var(--teal);">978</div>
+      <div class="kpi-value" style="color:var(--teal);" id="kpi-repos">1,002</div>
       <div class="kpi-sub">Units effectively recovered</div>
-      <div class="kpi-bar" style="background:rgba(17,171,171,.12);"><div style="width:75.8%;height:100%;background:var(--teal);border-radius:2px;"></div></div>
+      <div class="kpi-bar" style="background:rgba(17,171,171,.12);"><div id="kpi-repos-bar" style="width:73.8%;height:100%;background:var(--teal);border-radius:2px;"></div></div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Repossession Rate</div>
-      <div class="kpi-value" style="color:var(--green);">75.8%</div>
+      <div class="kpi-value" style="color:var(--green);" id="kpi-pct">73.8%</div>
       <div class="kpi-sub">Collected / total sent</div>
-      <div class="kpi-bar" style="background:rgba(26,122,74,.1);"><div style="width:75.8%;height:100%;background:var(--green);border-radius:2px;"></div></div>
+      <div class="kpi-bar" style="background:rgba(26,122,74,.1);"><div id="kpi-pct-bar" style="width:73.8%;height:100%;background:var(--green);border-radius:2px;"></div></div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Avg. Repossession Time</div>
-      <div class="kpi-value" style="color:var(--amber);">8.7 m</div>
+      <div class="kpi-value" style="color:var(--amber);" id="kpi-avg">9.3 m</div>
       <div class="kpi-sub">Months from cohort to repossession</div>
       <div class="kpi-bar" style="background:rgba(212,131,10,.1);"><div style="width:35%;height:100%;background:var(--amber);border-radius:2px;"></div></div>
     </div>
@@ -362,53 +362,26 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
   <!-- DESGLOSE — CHANGE 2: platform card has orig data, no separate platBarChart -->
   <div class="section-head">
     <span>Repossessed Breakdown</span>
-    <span class="section-note">By platform · state · gender</span>
+    <span class="section-note">By platform · state</span>
   </div>
-  <div class="grid-3">
+  <div class="grid-3" style="grid-template-columns:1fr 1fr;">
     <div class="chart-card" style="margin-bottom:0;">
-      <div class="chart-card-head"><div class="chart-card-title">By Platform</div><div class="chart-card-meta">978 collected · 3,842 originated 2024+</div></div>
+      <div class="chart-card-head"><div class="chart-card-title">By Platform</div><div class="chart-card-meta" id="plat-meta">1,002 collected</div></div>
       <div class="chart-card-body">
         <div style="position:relative;height:130px;display:flex;justify-content:center;"><canvas id="platChart"></canvas></div>
         <div style="margin-top:10px;">
           <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:3px 8px;font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;padding-bottom:5px;border-bottom:1px solid rgba(31,85,86,.1);">
-            <span></span><span style="text-align:right;">Orig.</span><span style="text-align:right;">Rec.</span><span style="text-align:right;">%&nbsp;Rec/Orig</span>
+            <span></span><span style="text-align:right;">Env.</span><span style="text-align:right;">Rec.</span><span style="text-align:right;">%</span>
           </div>
-          <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:3px 8px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(31,85,86,.07);">
-            <div class="stat-name"><div class="stat-dot" style="background:#11ABAB;"></div>UBER</div>
-            <span style="font-size:11px;font-weight:600;color:var(--text3);text-align:right;">3,139</span>
-            <span style="font-size:12px;font-weight:700;color:var(--text);text-align:right;">737</span>
-            <span class="stat-pct pos" style="text-align:right;">23.5%</span>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:3px 8px;align-items:center;padding:6px 0;">
-            <div class="stat-name"><div class="stat-dot" style="background:#1F5556;"></div>DIDI</div>
-            <span style="font-size:11px;font-weight:600;color:var(--text3);text-align:right;">703</span>
-            <span style="font-size:12px;font-weight:700;color:var(--text);text-align:right;">241</span>
-            <span class="stat-pct neutral" style="text-align:right;">34.3%</span>
-          </div>
+          <div id="plat-rows"></div>
         </div>
       </div>
     </div>
     <div class="chart-card" style="margin-bottom:0;">
-      <div class="chart-card-head"><div class="chart-card-title">By State</div><div class="chart-card-meta">5 states</div></div>
+      <div class="chart-card-head"><div class="chart-card-title">By State</div><div class="chart-card-meta" id="estado-meta">5 estados</div></div>
       <div class="chart-card-body">
         <div style="position:relative;height:160px;"><canvas id="estadoChart"></canvas></div>
-        <div style="margin-top:12px;">
-          <div class="stat-row"><div class="stat-name"><div class="stat-dot" style="background:#11ABAB;border-radius:50%;"></div>Mexico City</div><div style="display:flex;align-items:center;gap:8px;"><span class="stat-count">727</span><span class="stat-pct pos">74.3%</span></div></div>
-          <div class="stat-row"><div class="stat-name"><div class="stat-dot" style="background:#1F5556;border-radius:50%;"></div>Baja California</div><div style="display:flex;align-items:center;gap:8px;"><span class="stat-count">118</span><span class="stat-pct neutral">12.1%</span></div></div>
-          <div class="stat-row"><div class="stat-name"><div class="stat-dot" style="background:#4a9898;border-radius:50%;"></div>Nuevo León</div><div style="display:flex;align-items:center;gap:8px;"><span class="stat-count">75</span><span class="stat-pct neutral">7.7%</span></div></div>
-          <div class="stat-row"><div class="stat-name"><div class="stat-dot" style="background:#8ac8c8;border-radius:50%;"></div>Jalisco</div><div style="display:flex;align-items:center;gap:8px;"><span class="stat-count">50</span><span class="stat-pct neutral">5.1%</span></div></div>
-          <div class="stat-row"><div class="stat-name"><div class="stat-dot" style="background:#b8dede;border-radius:50%;"></div>Querétaro</div><div style="display:flex;align-items:center;gap:8px;"><span class="stat-count">8</span><span class="stat-pct neutral">0.8%</span></div></div>
-        </div>
-      </div>
-    </div>
-    <div class="chart-card" style="margin-bottom:0;">
-      <div class="chart-card-head"><div class="chart-card-title">By Gender</div><div class="chart-card-meta">978 collected</div></div>
-      <div class="chart-card-body">
-        <div style="position:relative;height:160px;display:flex;justify-content:center;"><canvas id="sexoChart"></canvas></div>
-        <div style="margin-top:12px;">
-          <div class="stat-row"><div class="stat-name"><div class="stat-dot" style="background:#1F5556;"></div>Male</div><div style="display:flex;align-items:center;gap:8px;"><span class="stat-count">958</span><span class="stat-pct pos">97.9%</span></div></div>
-          <div class="stat-row"><div class="stat-name"><div class="stat-dot" style="background:#11ABAB;"></div>Female</div><div style="display:flex;align-items:center;gap:8px;"><span class="stat-count">20</span><span class="stat-pct neutral">2.0%</span></div></div>
-        </div>
+        <div id="estado-rows" style="margin-top:12px;"></div>
       </div>
     </div>
   </div>
@@ -609,7 +582,40 @@ function buildOrigRec(){
 }
 // ── DONUTS ────────────────────────────────────────────────────────────────────
 function buildDonut(id,labels,data,colors){new Chart(document.getElementById(id).getContext('2d'),{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(31,85,86,.95)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',callbacks:{label:i=>` ${i.label}: ${i.raw} (${(i.raw/i.dataset.data.reduce((a,b)=>a+b)*100).toFixed(1)}%)`}}}}});}
-function buildEstado(){new Chart(document.getElementById('estadoChart').getContext('2d'),{type:'bar',data:{labels:['Mexico City','Baja Calif.','Nuevo León','Jalisco','Querétaro'],datasets:[{data:[727,118,75,50,8],backgroundColor:['#11ABAB','#1F5556','#4a9898','#8ac8c8','#b8dede'],borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(31,85,86,.95)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',callbacks:{label:i=>` ${i.raw} units (${(i.raw/978*100).toFixed(1)}%)`}}},scales:{x:{grid:{color:'rgba(31,85,86,.07)'},ticks:{font:{size:9},color:'#8a9a9a'}},y:{grid:{display:false},ticks:{font:{size:10},color:'#4a6060'}}}}});}
+let ESTADOS_DATA={'CDMX Y AREA METROPOLITANA':739,'BAJA CALIFORNIA':124,'NUEVO LEON':81,'JALISCO':50,'QUERETARO':8};
+let PLAT_SENT={'UBER':0,'DIDI':0};
+const ESTADO_LABELS={'CDMX Y AREA METROPOLITANA':'Mexico City','BAJA CALIFORNIA':'Baja Calif.','NUEVO LEON':'Nuevo León','JALISCO':'Jalisco','QUERETARO':'Querétaro'};
+const ESTADO_COLORS=['#11ABAB','#1F5556','#4a9898','#8ac8c8','#b8dede'];
+let _estadoChartInst=null;
+function buildEstado(){
+  const entries=Object.entries(ESTADOS_DATA).slice(0,5);
+  const total=Object.values(ESTADOS_DATA).reduce((a,b)=>a+b,0);
+  const labels=entries.map(([k])=>ESTADO_LABELS[k]||k);
+  const vals=entries.map(([,v])=>v);
+  if(_estadoChartInst){_estadoChartInst.destroy();_estadoChartInst=null;}
+  _estadoChartInst=new Chart(document.getElementById('estadoChart').getContext('2d'),{type:'bar',data:{labels,datasets:[{data:vals,backgroundColor:ESTADO_COLORS,borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(31,85,86,.95)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',callbacks:{label:i=>` ${i.raw} units (${(i.raw/total*100).toFixed(1)}%)`}}},scales:{x:{grid:{color:'rgba(31,85,86,.07)'},ticks:{font:{size:9},color:'#8a9a9a'}},y:{grid:{display:false},ticks:{font:{size:10},color:'#4a6060'}}}}});
+  // Render list
+  const el=document.getElementById('estado-rows');
+  if(el) el.innerHTML=entries.map(([k,v],i)=>`<div class="stat-row"><div class="stat-name"><div class="stat-dot" style="background:${ESTADO_COLORS[i]};border-radius:50%;"></div>${ESTADO_LABELS[k]||k}</div><div style="display:flex;align-items:center;gap:8px;"><span class="stat-count">${v.toLocaleString()}</span><span class="stat-pct ${i===0?'pos':'neutral'}">${(v/total*100).toFixed(1)}%</span></div></div>`).join('');
+  const metaEl=document.getElementById('estado-meta');
+  if(metaEl) metaEl.textContent=`${Object.keys(ESTADOS_DATA).length} estados`;
+}
+function buildPlatRows(){
+  const platColors={'UBER':'#11ABAB','DIDI':'#1F5556'};
+  const plats=['UBER','DIDI'];
+  const totalRec=plats.reduce((a,p)=>a+(window._platTotals&&window._platTotals[p]||0),0)||1002;
+  const el=document.getElementById('plat-rows');
+  if(!el)return;
+  el.innerHTML=plats.map((p,i)=>{
+    const rec=window._platTotals&&window._platTotals[p]||[750,252][i];
+    const sent=PLAT_SENT[p]||0;
+    const pct=sent>0?(rec/sent*100).toFixed(1)+'%':'—';
+    const border=i<plats.length-1?'border-bottom:1px solid rgba(31,85,86,.07);':'';
+    return `<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:3px 8px;align-items:center;padding:6px 0;${border}"><div class="stat-name"><div class="stat-dot" style="background:${platColors[p]};"></div>${p}</div><span style="font-size:11px;font-weight:600;color:var(--text3);text-align:right;">${sent.toLocaleString()}</span><span style="font-size:12px;font-weight:700;color:var(--text);text-align:right;">${rec.toLocaleString()}</span><span class="stat-pct ${i===0?'neutral':'pos'}" style="text-align:right;">${pct}</span></div>`;
+  }).join('');
+  const metaEl=document.getElementById('plat-meta');
+  if(metaEl) metaEl.textContent=`${totalRec.toLocaleString()} collected`;
+}
 // ── HEATMAP ───────────────────────────────────────────────────────────────────
 let hmMode='cum',hmNMode='env',hmGrouping='monthly',hmVisibleYears=new Set(['2024','2025','2026']);
 function setHmMode(m){hmMode=m;['cum','inc','cnt'].forEach(id=>document.getElementById('hm-'+id).classList.toggle('active',id===m));buildHeatmap();}
@@ -770,16 +776,35 @@ function buildOrigRatesActiva(){
 }
 // ── INIT ──────────────────────────────────────────────────────────────────────
 window.addEventListener('load',async()=>{
-  try{const resp=await fetch('data.json');if(resp.ok){const d=await resp.json();VD=d.vd||VD;N_ORIG=d.nOrig||N_ORIG;if(d.nActiva)N_ACTIVA=d.nActiva;if(d.invRecup)N_INVRECUP=d.invRecup;if(d.cosechaTable)COSECHA_TABLE=d.cosechaTable.filter(r=>r.t>0);if(d.origRec)ORIG_REC=d.origRec;if(d.platTotals){const uber=d.platTotals['UBER']||0;const didi=d.platTotals['DIDI']||0;window._platData=[uber,didi];}const ts=d.generated?new Date(d.generated).toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}):null;if(ts){const el=document.getElementById('data-ts');if(el)el.textContent='Datos: '+ts;}}}catch(e){console.log('Usando datos embebidos');}
+  try{const resp=await fetch('data.json');if(resp.ok){const d=await resp.json();
+    VD=d.vd||VD;N_ORIG=d.nOrig||N_ORIG;
+    if(d.nActiva)N_ACTIVA=d.nActiva;
+    if(d.invRecup)N_INVRECUP=d.invRecup;
+    if(d.cosechaTable)COSECHA_TABLE=d.cosechaTable.filter(r=>r.t>0);
+    if(d.origRec)ORIG_REC=d.origRec;
+    if(d.estados)ESTADOS_DATA=d.estados;
+    if(d.platSent)PLAT_SENT=d.platSent;
+    if(d.platTotals){window._platTotals=d.platTotals;const uber=d.platTotals['UBER']||0;const didi=d.platTotals['DIDI']||0;window._platData=[uber,didi];}
+    if(d.kpis){const k=d.kpis;
+      const se=document.getElementById('kpi-sent');if(se)se.textContent=k.sent.toLocaleString();
+      const re=document.getElementById('kpi-repos');if(re)re.textContent=k.repos.toLocaleString();
+      const pe=document.getElementById('kpi-pct');if(pe)pe.textContent=k.pct.toFixed(1)+'%';
+      const ae=document.getElementById('kpi-avg');if(ae)ae.textContent=k.avgMonths.toFixed(1)+' m';
+      const rb=document.getElementById('kpi-repos-bar');if(rb)rb.style.width=k.pct+'%';
+      const pb=document.getElementById('kpi-pct-bar');if(pb)pb.style.width=k.pct+'%';
+    }
+    const ts=d.generated?new Date(d.generated).toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}):null;
+    if(ts){const el=document.getElementById('data-ts');if(el)el.textContent='Datos: '+ts;}
+  }}catch(e){console.log('Usando datos embebidos');}
   buildVintage();
   buildCosechaBar();
   buildTable();
   buildOrigRates();
   buildOrigRatesActiva();
   buildOrigRec();
+  buildPlatRows();
   const pd=window._platData||[737,241];
   buildDonut('platChart',['UBER','DIDI'],pd,['#11ABAB','#1F5556']);
-  buildDonut('sexoChart',['Male','Female'],[958,20],['#1F5556','#11ABAB']);
   buildEstado();
   buildHeatmap();
 });
