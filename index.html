@@ -366,12 +366,12 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
   </div>
   <div class="grid-3" style="grid-template-columns:1fr 1fr;">
     <div class="chart-card" style="margin-bottom:0;">
-      <div class="chart-card-head"><div class="chart-card-title">By Platform</div><div class="chart-card-meta" id="plat-meta">1,002 collected</div></div>
+      <div class="chart-card-head"><div class="chart-card-title">By Platform</div><div class="chart-card-meta" id="plat-meta">1,002 collected · 1,357 originated</div></div>
       <div class="chart-card-body">
         <div style="position:relative;height:130px;display:flex;justify-content:center;"><canvas id="platChart"></canvas></div>
         <div style="margin-top:10px;">
           <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:3px 8px;font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;padding-bottom:5px;border-bottom:1px solid rgba(31,85,86,.1);">
-            <span></span><span style="text-align:right;">Env.</span><span style="text-align:right;">Rec.</span><span style="text-align:right;">%</span>
+            <span></span><span style="text-align:right;">Orig.</span><span style="text-align:right;">Rec.</span><span style="text-align:right;">%&nbsp;Rec/Orig</span>
           </div>
           <div id="plat-rows"></div>
         </div>
@@ -603,18 +603,24 @@ function buildEstado(){
 function buildPlatRows(){
   const platColors={'UBER':'#11ABAB','DIDI':'#1F5556'};
   const plats=['UBER','DIDI'];
-  const totalRec=plats.reduce((a,p)=>a+(window._platTotals&&window._platTotals[p]||0),0)||1002;
   const el=document.getElementById('plat-rows');
   if(!el)return;
   el.innerHTML=plats.map((p,i)=>{
     const rec=window._platTotals&&window._platTotals[p]||[750,252][i];
-    const sent=PLAT_SENT[p]||0;
-    const pct=sent>0?(rec/sent*100).toFixed(1)+'%':'—';
+    const orig=PLAT_SENT[p]||0;
+    const pct=orig>0?(rec/orig*100).toFixed(1)+'%':'—';
     const border=i<plats.length-1?'border-bottom:1px solid rgba(31,85,86,.07);':'';
-    return `<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:3px 8px;align-items:center;padding:6px 0;${border}"><div class="stat-name"><div class="stat-dot" style="background:${platColors[p]};"></div>${p}</div><span style="font-size:11px;font-weight:600;color:var(--text3);text-align:right;">${sent.toLocaleString()}</span><span style="font-size:12px;font-weight:700;color:var(--text);text-align:right;">${rec.toLocaleString()}</span><span class="stat-pct ${i===0?'neutral':'pos'}" style="text-align:right;">${pct}</span></div>`;
+    return `<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:3px 8px;align-items:center;padding:6px 0;${border}">
+      <div class="stat-name"><div class="stat-dot" style="background:${platColors[p]};"></div>${p}</div>
+      <span style="font-size:11px;font-weight:600;color:var(--text3);text-align:right;">${orig.toLocaleString()}</span>
+      <span style="font-size:12px;font-weight:700;color:var(--text);text-align:right;">${rec.toLocaleString()}</span>
+      <span class="stat-pct pos" style="text-align:right;">${pct}</span>
+    </div>`;
   }).join('');
+  const totalRec=plats.reduce((a,p)=>a+(window._platTotals&&window._platTotals[p]||0),0)||1002;
+  const totalOrig=plats.reduce((a,p)=>a+(PLAT_SENT[p]||0),0)||1357;
   const metaEl=document.getElementById('plat-meta');
-  if(metaEl) metaEl.textContent=`${totalRec.toLocaleString()} collected`;
+  if(metaEl) metaEl.textContent=`${totalRec.toLocaleString()} collected · ${totalOrig.toLocaleString()} originated`;
 }
 // ── HEATMAP ───────────────────────────────────────────────────────────────────
 let hmMode='cum',hmNMode='env',hmGrouping='monthly',hmVisibleYears=new Set(['2024','2025','2026']);
