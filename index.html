@@ -635,7 +635,7 @@ function setHmGrouping(g){hmGrouping=g;document.getElementById('hmg-monthly').cl
 function heatColor(t){if(t<=0)return{bg:'#F8F8F8',fg:'#ccc'};let r,g,b;if(t<0.5){const x=t*2;r=Math.round(248+(255-248)*x);g=Math.round(248+(185-248)*x);b=Math.round(248+(80-248)*x);}else{const x=(t-0.5)*2;r=Math.round(255+(210-255)*x);g=Math.round(185+(60-185)*x);b=Math.round(80+(50-80)*x);}const lum=.299*r+.587*g+.114*b;return{bg:'rgb('+r+','+g+','+b+')',fg:lum>140?'#1a2424':'#ffffff'};}
 function buildHeatmap(){
   const maxM=36,CELL_W=44,LBL_W=88,N_W=48;let rows=[];
-  if(hmGrouping==='monthly'){Object.keys(VD).forEach(cos=>{const yr=cos.split('-')[1];if(yr==='2022'||yr==='2023')return;if(!hmVisibleYears.has(yr))return;const d=VD[cos];const nE=d.n;const nO=N_ORIG[cos]||null;const nA=N_ACTIVA[cos]||null;const N=hmNMode==='orig'?(nO||nE):hmNMode==='activa'?(nA||nE):nE;const[mmC,yyC]=cos.split('-').map(Number);const{mm:ldMM,yy:ldYY}=getLastYM();const maxPossM=Math.min(Math.max(0,(ldYY-yyC)*12+(ldMM-mmC)),36);rows.push({label:cos,curve:d.c,nEnv:nE,N,year:yr,maxPossM});});}
+  if(hmGrouping==='monthly'){Object.keys(VD).forEach(cos=>{const yr=cos.split('-')[1];if(yr==='2022'||yr==='2023')return;if(!hmVisibleYears.has(yr))return;const d=VD[cos];const nE=d.n;const nO=N_ORIG[cos]||null;const nA=N_ACTIVA[cos]||null;const N=hmNMode==='orig'?(nO||nE):hmNMode==='activa'?(nA||nE):nE;const[mmC,yyC]=cos.split('-').map(Number);const{mm:ldMM,yy:ldYY}=getLastYM();const maxPossM=Math.min(Math.max(0,(ldYY-yyC)*12+(ldMM-mmC)),36);rows.push({label:cos,curve:d.c,nEnv:nE,N,year:yr,maxPossM});});Object.keys(N_ORIG).forEach(cos=>{if(VD[cos])return;const yr=cos.split('-')[1];if(yr==='2022'||yr==='2023')return;if(!hmVisibleYears.has(yr))return;const nO=N_ORIG[cos]||0;if(!nO)return;const nA=N_ACTIVA[cos]||null;const N=hmNMode==='orig'?nO:hmNMode==='activa'?(nA||nO):0;const[mmC,yyC]=cos.split('-').map(Number);const{mm:ldMM,yy:ldYY}=getLastYM();const maxPossM=Math.min(Math.max(0,(ldYY-yyC)*12+(ldMM-mmC)),36);rows.push({label:cos,curve:[],nEnv:0,N,year:yr,maxPossM,noEnv:true});});}
   else{const qMap={};Object.keys(VD).forEach(cos=>{const yr=cos.split('-')[1];if(yr==='2022'||yr==='2023')return;if(!hmVisibleYears.has(yr))return;const q=getQ(cos);if(!qMap[q])qMap[q]=[];qMap[q].push(cos);});Object.keys(qMap).sort((a,b)=>{const[qa,ya]=a.split('-');const[qb,yb]=b.split('-');return parseInt(ya)!==parseInt(yb)?parseInt(ya)-parseInt(yb):parseInt(qa.slice(1))-parseInt(qb.slice(1));}).forEach(q=>{const _nMode=hmNMode==='activa'?'env':hmNMode;const m=mergeCosechas(qMap[q],_nMode);if(hmNMode==='activa'){const qYr=q.split('-')[1];const cosInQ=qMap[q];let totA=0;cosInQ.forEach(c=>{totA+=N_ACTIVA[c]||0;});if(totA>0)m.n=Math.round(totA/cosInQ.length);}const[qP,yP]=q.split('-');const lastMoQ=parseInt(qP.slice(1))*3;const{mm:ldMM2,yy:ldYY2}=getLastYM();const maxPossM=Math.min(Math.max(0,(ldYY2-parseInt(yP))*12+(ldMM2-lastMoQ)),36);rows.push({label:q,curve:m.c,nEnv:m.n,N:m.n,year:yP,maxPossM});});}
   rows.sort((a,b)=>{const[ma,ya]=a.label.split('-').map(Number);const[mb,yb]=b.label.split('-').map(Number);return ya!==yb?ya-yb:ma-mb;});
   const activeMaxM=rows.length?Math.max(...rows.map(r=>r.maxPossM)):maxM;const colMaxM=Math.min(activeMaxM,maxM);
@@ -653,8 +653,11 @@ function buildHeatmap(){
   rows.forEach(row=>{
     const{label,curve,nEnv,N,year}=row;
     if(year!==prevYear){html+=`<tr><td colspan="${colMaxM+3}" style="background:rgba(31,85,86,.09);padding:3px 8px;font-size:9px;font-weight:700;color:#4a6060;letter-spacing:.08em;">${year}</td></tr>`;prevYear=year;}
-    html+=`<tr><td style="padding:2px 8px;background:#fff;font-weight:600;color:#1F5556;font-size:10px;position:sticky;left:0;z-index:2;border-bottom:1px solid rgba(31,85,86,.07);">${label}</td>`;
-    html+=`<td style="padding:2px 6px;background:#e6eef0;color:#1F5556;font-size:9px;text-align:center;border-bottom:1px solid rgba(31,85,86,.1);font-weight:700;position:sticky;left:${LBL_W}px;z-index:2;">${N}</td>`;
+    html+=`<tr><td style="padding:2px 8px;background:#fff;font-weight:600;color:${row.noEnv?'#7a9898':'#1F5556'};font-size:10px;position:sticky;left:0;z-index:2;border-bottom:1px solid rgba(31,85,86,.07);font-style:${row.noEnv?'italic':'normal'};">${label}</td>`;
+    html+=`<td style="padding:2px 6px;background:#e6eef0;color:#1F5556;font-size:9px;text-align:center;border-bottom:1px solid rgba(31,85,86,.1);font-weight:700;position:sticky;left:${LBL_W}px;z-index:2;">${row.noEnv?(N||'—'):N}</td>`;
+    if(row.noEnv){
+      for(let m=0;m<=colMaxM;m++){html+=`<td title="${label}: Sin contratos enviados a recuperación aún" style="background:repeating-linear-gradient(135deg,#daeaea,#daeaea 2px,#eef6f6 2px,#eef6f6 6px);min-width:${CELL_W}px;border:1px solid rgba(0,0,0,.03);text-align:center;font-size:8px;color:#aabcbc;">—</td>`;}
+    } else {
     for(let m=0;m<=colMaxM;m++){
       if(m>row.maxPossM){html+=`<td style="background:repeating-linear-gradient(135deg,#ebebeb,#ebebeb 2px,#f5f5f5 2px,#f5f5f5 6px);min-width:${CELL_W}px;border:1px solid rgba(0,0,0,.03);"></td>`;continue;}
       const cum=m<curve.length?curve[m]:curve[curve.length-1];const prev=m>0&&(m-1)<curve.length?curve[m-1]:0;const inc=Math.max(0,cum-prev);const recCum=Math.round(cum/100*nEnv);const recInc=Math.round(inc/100*nEnv);const cumPct=N>0?recCum/N*100:0;const incPct=N>0?recInc/N*100:0;
@@ -664,6 +667,7 @@ function buildHeatmap(){
       let val,t;const _hmScale=hmNMode==='activa'?hmActivaMax:100;if(hmMode==='cum'){val=cumPct.toFixed(1)+'%';t=Math.min(cumPct/_hmScale,1);}else if(hmMode==='inc'){val=incPct.toFixed(1)+'%';t=Math.min(incPct/(hmNMode==='activa'?hmActivaMax/5:25),1);}else{val=String(recInc);t=N>0?Math.min(recInc/(N*0.25),1):0;}
       const cs=heatColor(t);const tip=`${label} — M+${m}: ${recCum} of ${nEnv} sent (${cum.toFixed(1)}% cum.)`;
       html+=`<td title="${tip}" style="padding:2px 3px;background:${cs.bg};color:${cs.fg};text-align:center;border:1px solid rgba(0,0,0,.04);font-size:9px;font-weight:600;cursor:default;min-width:${CELL_W}px;">${val}</td>`;
+    }
     }
     html+='</tr>';
   });
