@@ -327,7 +327,7 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
     </div>
   </div>
   <!-- ACTIVE UNITS RATES CHART -->
-  <div class="chart-card" style="margin-bottom:28px;">
+  <div class="chart-card" style="margin-bottom:16px;">
     <div class="chart-card-head forest">
       <div>
         <div class="chart-card-title">Recuperados en Inventario vs. Flota Activa — por Mes</div>
@@ -338,32 +338,13 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
       <div style="position:relative;width:100%;height:320px;"><canvas id="origActivaChart"></canvas></div>
     </div>
   </div>
-  <hr class="divider">
 
-  <!-- ORIG VS REC — CHANGE 4: line on right axis -->
-  <div class="section-head">
-    <span>New Originations vs Repossessed by Month</span>
-    <span class="section-note" id="note-origrec">Jan 2025 – May 2026 · Source: Originations sheet</span>
-  </div>
-  <div class="chart-card" style="margin-bottom:28px;">
-    <div class="chart-card-head forest">
-      <div>
-        <div class="chart-card-title">Originaciones vs Recuperados</div>
-        <div class="chart-card-meta">% Recuperados / Originaciones (eje derecho)</div>
-      </div>
-    </div>
-    <div class="chart-card-body">
-      <div style="position:relative;width:100%;height:300px;"><canvas id="origRecChart"></canvas></div>
-    </div>
-  </div>
-  <hr class="divider">
-
-  <!-- DESGLOSE — CHANGE 2: platform card has orig data, no separate platBarChart -->
+  <!-- DESGLOSE — alongside Active Units -->
   <div class="section-head">
     <span>Repossessed Breakdown</span>
     <span class="section-note">By platform · state</span>
   </div>
-  <div class="grid-3" style="grid-template-columns:1fr 1fr;">
+  <div class="grid-3" style="grid-template-columns:1fr 1fr;margin-bottom:16px;">
     <div class="chart-card" style="margin-bottom:0;">
       <div class="chart-card-head"><div class="chart-card-title">By Platform</div><div class="chart-card-meta" id="plat-meta">1,002 collected · 1,357 originated</div></div>
       <div class="chart-card-body">
@@ -382,6 +363,47 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
         <div style="position:relative;height:160px;"><canvas id="estadoChart"></canvas></div>
         <div id="estado-rows" style="margin-top:12px;"></div>
       </div>
+    </div>
+  </div>
+  <div class="grid-3" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:28px;">
+    <div class="chart-card" style="margin-bottom:0;">
+      <div class="chart-card-head"><div class="chart-card-title">By Tech</div><div class="chart-card-meta" id="tech-meta">ICE · EV</div></div>
+      <div class="chart-card-body">
+        <div style="position:relative;height:120px;display:flex;justify-content:center;"><canvas id="techChart"></canvas></div>
+        <div id="tech-rows" style="margin-top:10px;"></div>
+      </div>
+    </div>
+    <div class="chart-card" style="margin-bottom:0;">
+      <div class="chart-card-head"><div class="chart-card-title">By Model Year</div><div class="chart-card-meta" id="anio-meta">Año modelo</div></div>
+      <div class="chart-card-body">
+        <div style="position:relative;height:120px;display:flex;justify-content:center;"><canvas id="anioChart"></canvas></div>
+        <div id="anio-rows" style="margin-top:10px;"></div>
+      </div>
+    </div>
+    <div class="chart-card" style="margin-bottom:0;">
+      <div class="chart-card-head"><div class="chart-card-title">By Categoría VEMO</div><div class="chart-card-meta" id="cat-meta">Categoría</div></div>
+      <div class="chart-card-body">
+        <div style="position:relative;height:120px;display:flex;justify-content:center;"><canvas id="catChart"></canvas></div>
+        <div id="cat-rows" style="margin-top:10px;"></div>
+      </div>
+    </div>
+  </div>
+  <hr class="divider">
+
+  <!-- ORIG VS REC -->
+  <div class="section-head">
+    <span>New Originations vs Repossessed by Month</span>
+    <span class="section-note" id="note-origrec">Jan 2025 – May 2026 · Source: Originations sheet</span>
+  </div>
+  <div class="chart-card" style="margin-bottom:28px;">
+    <div class="chart-card-head forest">
+      <div>
+        <div class="chart-card-title">Originaciones vs Recuperados</div>
+        <div class="chart-card-meta">% Recuperados / Originaciones (eje derecho)</div>
+      </div>
+    </div>
+    <div class="chart-card-body">
+      <div style="position:relative;width:100%;height:300px;"><canvas id="origRecChart"></canvas></div>
     </div>
   </div>
 
@@ -588,6 +610,7 @@ function buildOrigRec(){
 function buildDonut(id,labels,data,colors){new Chart(document.getElementById(id).getContext('2d'),{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(31,85,86,.95)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',callbacks:{label:i=>` ${i.label}: ${i.raw} (${(i.raw/i.dataset.data.reduce((a,b)=>a+b)*100).toFixed(1)}%)`}}}}});}
 let ESTADOS_DATA={'CDMX Y AREA METROPOLITANA':739,'BAJA CALIFORNIA':124,'NUEVO LEON':81,'JALISCO':50,'QUERETARO':8};
 let PLAT_SENT={'UBER':0,'DIDI':0};
+let TECH_BD={}, ANIO_BD={}, CAT_BD={};
 const ESTADO_LABELS={'CDMX Y AREA METROPOLITANA':'Mexico City','BAJA CALIFORNIA':'Baja Calif.','NUEVO LEON':'Nuevo León','JALISCO':'Jalisco','QUERETARO':'Querétaro'};
 const ESTADO_COLORS=['#11ABAB','#1F5556','#4a9898','#8ac8c8','#b8dede'];
 let _estadoChartInst=null;
@@ -625,6 +648,32 @@ function buildPlatRows(){
   const totalOrig=plats.reduce((a,p)=>a+(PLAT_SENT[p]||0),0)||1357;
   const metaEl=document.getElementById('plat-meta');
   if(metaEl) metaEl.textContent=`${totalRec.toLocaleString()} collected · ${totalOrig.toLocaleString()} originated`;
+}
+// ── BREAKDOWN CARDS (Tech / Año Modelo / Categoría) ──────────────────────────
+const BD_PAL_TECH=['#1F5556','#11ABAB','#4a9898','#8ac8c8'];
+const BD_PAL_ANIO=['#11ABAB','#1F5556','#d4830a','#4a9898','#8ac8c8'];
+const BD_PAL_CAT =['#11ABAB','#1F5556','#4a9898','#d4830a','#8ac8c8','#b8dede'];
+const _bdInst={};
+function buildBreakdownCard(data,chartId,rowsId,metaId,pal){
+  const entries=Object.entries(data).sort((a,b)=>b[1].sent-a[1].sent);
+  if(!entries.length)return;
+  const totalSent=entries.reduce((s,[,v])=>s+v.sent,0);
+  const totalRec=entries.reduce((s,[,v])=>s+v.rec,0);
+  const el=document.getElementById(metaId);if(el)el.textContent=`${totalRec.toLocaleString()} rec. · ${totalSent.toLocaleString()} sent`;
+  const labels=entries.map(([k])=>k);
+  const vals=entries.map(([,v])=>v.rec);
+  const cols=pal.slice(0,labels.length);
+  if(_bdInst[chartId]){_bdInst[chartId].destroy();}
+  const ctx=document.getElementById(chartId);if(!ctx)return;
+  _bdInst[chartId]=new Chart(ctx.getContext('2d'),{type:'doughnut',data:{labels,datasets:[{data:vals,backgroundColor:cols,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(31,85,86,.95)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',callbacks:{label:i=>` ${i.label}: ${i.raw} (${totalRec>0?(i.raw/totalRec*100).toFixed(1):'0'}%)`}}}}});
+  const rowsEl=document.getElementById(rowsId);if(!rowsEl)return;
+  let html=`<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:3px 8px;font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;padding-bottom:5px;border-bottom:1px solid rgba(31,85,86,.1);"><span></span><span style="text-align:right;">Sent</span><span style="text-align:right;">Rec.</span><span style="text-align:right;">%</span></div>`;
+  entries.forEach(([k,v],i)=>{
+    const pct=v.sent>0?(v.rec/v.sent*100).toFixed(1)+'%':'—';
+    const border=i<entries.length-1?'border-bottom:1px solid rgba(31,85,86,.07);':'';
+    html+=`<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:3px 8px;align-items:center;padding:5px 0;${border}"><div class="stat-name"><div class="stat-dot" style="background:${pal[i%pal.length]};"></div>${k}</div><span style="font-size:10px;font-weight:600;color:var(--text3);text-align:right;">${v.sent.toLocaleString()}</span><span style="font-size:11px;font-weight:700;color:var(--text);text-align:right;">${v.rec.toLocaleString()}</span><span class="stat-pct pos" style="text-align:right;">${pct}</span></div>`;
+  });
+  rowsEl.innerHTML=html;
 }
 // ── HEATMAP ───────────────────────────────────────────────────────────────────
 let hmMode='cum',hmNMode='env',hmGrouping='monthly',hmVisibleYears=new Set(['2024','2025','2026']);
@@ -807,6 +856,9 @@ window.addEventListener('load',async()=>{
     if(d.estados)ESTADOS_DATA=d.estados;
     if(d.platSent)PLAT_SENT=d.platSent;
     if(d.platTotals){window._platTotals=d.platTotals;const uber=d.platTotals['UBER']||0;const didi=d.platTotals['DIDI']||0;window._platData=[uber,didi];}
+    if(d.techBreakdown)TECH_BD=d.techBreakdown;
+    if(d.anioBreakdown)ANIO_BD=d.anioBreakdown;
+    if(d.catBreakdown)CAT_BD=d.catBreakdown;
     if(d.kpis){const k=d.kpis;
       const se=document.getElementById('kpi-sent');if(se)se.textContent=k.sent.toLocaleString();
       const re=document.getElementById('kpi-repos');if(re)re.textContent=k.repos.toLocaleString();
@@ -828,6 +880,9 @@ window.addEventListener('load',async()=>{
   const pd=window._platData||[737,241];
   buildDonut('platChart',['UBER','DIDI'],pd,['#11ABAB','#1F5556']);
   buildEstado();
+  buildBreakdownCard(TECH_BD,'techChart','tech-rows','tech-meta',BD_PAL_TECH);
+  buildBreakdownCard(ANIO_BD,'anioChart','anio-rows','anio-meta',BD_PAL_ANIO);
+  buildBreakdownCard(CAT_BD,'catChart','cat-rows','cat-meta',BD_PAL_CAT);
   buildHeatmap();
 });
 </script>
