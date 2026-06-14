@@ -2503,5 +2503,59 @@
     "pct": 73.8,
     "avgMonths": 9.3
   },
-  "generated": "2026-06-12T16:51:22.690048Z"
+  "techBreakdown": {
+    "EV": {
+      "sent": 763,
+      "rec": 578
+    },
+    "HEV": {
+      "sent": 25,
+      "rec": 18
+    },
+    "ICE": {
+      "sent": 569,
+      "rec": 406
+    }
+  },
+  "anioBreakdown": {
+    "2022": {
+      "sent": 17,
+      "rec": 10
+    },
+    "2023": {
+      "sent": 50,
+      "rec": 33
+    },
+    "2024": {
+      "sent": 277,
+      "rec": 204
+    },
+    "2025": {
+      "sent": 777,
+      "rec": 579
+    },
+    "2026": {
+      "sent": 236,
+      "rec": 176
+    }
+  },
+  "catBreakdown": {
+    "PREMIUM": {
+      "sent": 533,
+      "rec": 407
+    },
+    "SEDAN": {
+      "sent": 488,
+      "rec": 348
+    },
+    "LIGHT": {
+      "sent": 230,
+      "rec": 171
+    },
+    "MINI SUV": {
+      "sent": 106,
+      "rec": 76
+    }
+  },
+  "generated": "2026-06-14T19:50:25.004124Z"
 }
