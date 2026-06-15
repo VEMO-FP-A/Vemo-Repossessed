@@ -654,8 +654,9 @@ const BD_PAL_TECH=['#1F5556','#11ABAB','#4a9898','#8ac8c8'];
 const BD_PAL_ANIO=['#11ABAB','#1F5556','#d4830a','#4a9898','#8ac8c8'];
 const BD_PAL_CAT =['#11ABAB','#1F5556','#4a9898','#d4830a','#8ac8c8','#b8dede'];
 const _bdInst={};
-function buildBreakdownCard(data,chartId,rowsId,metaId,pal){
-  const entries=Object.entries(data).sort((a,b)=>(b[1].orig||b[1].sent||0)-(a[1].orig||a[1].sent||0));
+function buildBreakdownCard(data,chartId,rowsId,metaId,pal,sortFn){
+  const defaultSort=(a,b)=>(b[1].orig||b[1].sent||0)-(a[1].orig||a[1].sent||0);
+  const entries=Object.entries(data).sort(sortFn||defaultSort);
   if(!entries.length)return;
   const totalOrig=entries.reduce((s,[,v])=>s+(v.orig||v.sent||0),0);
   const totalRec=entries.reduce((s,[,v])=>s+v.rec,0);
@@ -882,7 +883,7 @@ window.addEventListener('load',async()=>{
   buildDonut('platChart',['UBER','DIDI'],pd,['#11ABAB','#1F5556']);
   buildEstado();
   buildBreakdownCard(TECH_BD,'techChart','tech-rows','tech-meta',BD_PAL_TECH);
-  buildBreakdownCard(ANIO_BD,'anioChart','anio-rows','anio-meta',BD_PAL_ANIO);
+  buildBreakdownCard(ANIO_BD,'anioChart','anio-rows','anio-meta',BD_PAL_ANIO,(a,b)=>Number(a[0])-Number(b[0]));
   buildBreakdownCard(CAT_BD,'catChart','cat-rows','cat-meta',BD_PAL_CAT);
   buildHeatmap();
 });
