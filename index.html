@@ -339,10 +339,28 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
     </div>
   </div>
 
-  <!-- DESGLOSE — alongside Active Units -->
+  <!-- ORIG VS REC — moved above Breakdown -->
+  <div class="section-head">
+    <span>New Originations vs Repossessed by Month</span>
+    <span class="section-note" id="note-origrec">Jan 2025 – May 2026 · Source: Originations sheet</span>
+  </div>
+  <div class="chart-card" style="margin-bottom:28px;">
+    <div class="chart-card-head forest">
+      <div>
+        <div class="chart-card-title">Originaciones vs Recuperados</div>
+        <div class="chart-card-meta">% Recuperados / Originaciones (eje derecho)</div>
+      </div>
+    </div>
+    <div class="chart-card-body">
+      <div style="position:relative;width:100%;height:300px;"><canvas id="origRecChart"></canvas></div>
+    </div>
+  </div>
+  <hr class="divider">
+
+  <!-- DESGLOSE -->
   <div class="section-head">
     <span>Repossessed Breakdown</span>
-    <span class="section-note">By platform · state</span>
+    <span class="section-note">By platform · state · tech · model year · category</span>
   </div>
   <div class="grid-3" style="grid-template-columns:1fr 1fr;margin-bottom:16px;">
     <div class="chart-card" style="margin-bottom:0;">
@@ -386,24 +404,6 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
         <div style="position:relative;height:120px;display:flex;justify-content:center;"><canvas id="catChart"></canvas></div>
         <div id="cat-rows" style="margin-top:10px;"></div>
       </div>
-    </div>
-  </div>
-  <hr class="divider">
-
-  <!-- ORIG VS REC -->
-  <div class="section-head">
-    <span>New Originations vs Repossessed by Month</span>
-    <span class="section-note" id="note-origrec">Jan 2025 – May 2026 · Source: Originations sheet</span>
-  </div>
-  <div class="chart-card" style="margin-bottom:28px;">
-    <div class="chart-card-head forest">
-      <div>
-        <div class="chart-card-title">Originaciones vs Recuperados</div>
-        <div class="chart-card-meta">% Recuperados / Originaciones (eje derecho)</div>
-      </div>
-    </div>
-    <div class="chart-card-body">
-      <div style="position:relative;width:100%;height:300px;"><canvas id="origRecChart"></canvas></div>
     </div>
   </div>
 
@@ -667,7 +667,7 @@ function buildBreakdownCard(data,chartId,rowsId,metaId,pal){
   const ctx=document.getElementById(chartId);if(!ctx)return;
   _bdInst[chartId]=new Chart(ctx.getContext('2d'),{type:'doughnut',data:{labels,datasets:[{data:vals,backgroundColor:cols,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(31,85,86,.95)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',callbacks:{label:i=>` ${i.label}: ${i.raw} (${totalRec>0?(i.raw/totalRec*100).toFixed(1):'0'}%)`}}}}});
   const rowsEl=document.getElementById(rowsId);if(!rowsEl)return;
-  let html=`<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:3px 8px;font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;padding-bottom:5px;border-bottom:1px solid rgba(31,85,86,.1);"><span></span><span style="text-align:right;">Sent</span><span style="text-align:right;">Rec.</span><span style="text-align:right;">%</span></div>`;
+  let html=`<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:3px 8px;font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;padding-bottom:5px;border-bottom:1px solid rgba(31,85,86,.1);"><span></span><span style="text-align:right;">Orig.</span><span style="text-align:right;">Rec.</span><span style="text-align:right;">%&nbsp;Rec/Orig</span></div>`;
   entries.forEach(([k,v],i)=>{
     const pct=v.sent>0?(v.rec/v.sent*100).toFixed(1)+'%':'—';
     const border=i<entries.length-1?'border-bottom:1px solid rgba(31,85,86,.07);':'';
