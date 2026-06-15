@@ -655,11 +655,11 @@ const BD_PAL_ANIO=['#11ABAB','#1F5556','#d4830a','#4a9898','#8ac8c8'];
 const BD_PAL_CAT =['#11ABAB','#1F5556','#4a9898','#d4830a','#8ac8c8','#b8dede'];
 const _bdInst={};
 function buildBreakdownCard(data,chartId,rowsId,metaId,pal){
-  const entries=Object.entries(data).sort((a,b)=>b[1].sent-a[1].sent);
+  const entries=Object.entries(data).sort((a,b)=>(b[1].orig||b[1].sent||0)-(a[1].orig||a[1].sent||0));
   if(!entries.length)return;
-  const totalSent=entries.reduce((s,[,v])=>s+v.sent,0);
+  const totalOrig=entries.reduce((s,[,v])=>s+(v.orig||v.sent||0),0);
   const totalRec=entries.reduce((s,[,v])=>s+v.rec,0);
-  const el=document.getElementById(metaId);if(el)el.textContent=`${totalRec.toLocaleString()} rec. · ${totalSent.toLocaleString()} sent`;
+  const el=document.getElementById(metaId);if(el)el.textContent=`${totalRec.toLocaleString()} rec. · ${totalOrig.toLocaleString()} orig.`;
   const labels=entries.map(([k])=>k);
   const vals=entries.map(([,v])=>v.rec);
   const cols=pal.slice(0,labels.length);
@@ -669,9 +669,10 @@ function buildBreakdownCard(data,chartId,rowsId,metaId,pal){
   const rowsEl=document.getElementById(rowsId);if(!rowsEl)return;
   let html=`<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:3px 8px;font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;padding-bottom:5px;border-bottom:1px solid rgba(31,85,86,.1);"><span></span><span style="text-align:right;">Orig.</span><span style="text-align:right;">Rec.</span><span style="text-align:right;">%&nbsp;Rec/Orig</span></div>`;
   entries.forEach(([k,v],i)=>{
-    const pct=v.sent>0?(v.rec/v.sent*100).toFixed(1)+'%':'—';
+    const orig=v.orig||v.sent||0;
+    const pct=orig>0?(v.rec/orig*100).toFixed(1)+'%':'—';
     const border=i<entries.length-1?'border-bottom:1px solid rgba(31,85,86,.07);':'';
-    html+=`<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:3px 8px;align-items:center;padding:5px 0;${border}"><div class="stat-name"><div class="stat-dot" style="background:${pal[i%pal.length]};"></div>${k}</div><span style="font-size:10px;font-weight:600;color:var(--text3);text-align:right;">${v.sent.toLocaleString()}</span><span style="font-size:11px;font-weight:700;color:var(--text);text-align:right;">${v.rec.toLocaleString()}</span><span class="stat-pct pos" style="text-align:right;">${pct}</span></div>`;
+    html+=`<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:3px 8px;align-items:center;padding:5px 0;${border}"><div class="stat-name"><div class="stat-dot" style="background:${pal[i%pal.length]};"></div>${k}</div><span style="font-size:10px;font-weight:600;color:var(--text3);text-align:right;">${orig.toLocaleString()}</span><span style="font-size:11px;font-weight:700;color:var(--text);text-align:right;">${v.rec.toLocaleString()}</span><span class="stat-pct pos" style="text-align:right;">${pct}</span></div>`;
   });
   rowsEl.innerHTML=html;
 }
