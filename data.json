@@ -2505,57 +2505,119 @@
   },
   "techBreakdown": {
     "EV": {
+      "orig": 2819,
       "sent": 763,
       "rec": 578
     },
     "HEV": {
+      "orig": 171,
       "sent": 25,
       "rec": 18
     },
     "ICE": {
+      "orig": 5501,
       "sent": 569,
       "rec": 406
+    },
+    "TIPO DE MOTOR": {
+      "orig": 5,
+      "sent": 0,
+      "rec": 0
     }
   },
   "anioBreakdown": {
+    "2016": {
+      "orig": 43,
+      "sent": 0,
+      "rec": 0
+    },
+    "2017": {
+      "orig": 27,
+      "sent": 0,
+      "rec": 0
+    },
+    "2018": {
+      "orig": 102,
+      "sent": 0,
+      "rec": 0
+    },
+    "2019": {
+      "orig": 387,
+      "sent": 0,
+      "rec": 0
+    },
+    "2020": {
+      "orig": 1753,
+      "sent": 0,
+      "rec": 0
+    },
+    "2021": {
+      "orig": 475,
+      "sent": 0,
+      "rec": 0
+    },
     "2022": {
+      "orig": 295,
       "sent": 17,
       "rec": 10
     },
     "2023": {
+      "orig": 457,
       "sent": 50,
       "rec": 33
     },
     "2024": {
+      "orig": 1229,
       "sent": 277,
       "rec": 204
     },
     "2025": {
+      "orig": 2409,
       "sent": 777,
       "rec": 579
     },
     "2026": {
+      "orig": 1415,
       "sent": 236,
       "rec": 176
+    },
+    "MODELO": {
+      "orig": 5,
+      "sent": 0,
+      "rec": 0
     }
   },
   "catBreakdown": {
-    "PREMIUM": {
-      "sent": 533,
-      "rec": 407
-    },
     "SEDAN": {
+      "orig": 4154,
       "sent": 488,
       "rec": 348
     },
+    "PREMIUM": {
+      "orig": 1840,
+      "sent": 533,
+      "rec": 407
+    },
+    "MINI SUV": {
+      "orig": 1507,
+      "sent": 106,
+      "rec": 76
+    },
     "LIGHT": {
+      "orig": 979,
       "sent": 230,
       "rec": 171
     },
-    "MINI SUV": {
-      "sent": 106,
-      "rec": 76
+    "PICK UP": {
+      "orig": 11,
+      "sent": 0,
+      "rec": 0
+    },
+    "CATEGORIA VEMO": {
+      "orig": 5,
+      "sent": 0,
+      "rec": 0
     }
   },
-  "generated": "2026-06-15T16:05:54.036442Z"
+  "generated": "2026-06-15T16:47:38.529980Z"
 }
