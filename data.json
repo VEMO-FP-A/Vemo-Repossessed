@@ -2518,11 +2518,6 @@
       "orig": 5501,
       "sent": 569,
       "rec": 406
-    },
-    "TIPO DE MOTOR": {
-      "orig": 5,
-      "sent": 0,
-      "rec": 0
     }
   },
   "anioBreakdown": {
@@ -2580,11 +2575,6 @@
       "orig": 1415,
       "sent": 236,
       "rec": 176
-    },
-    "MODELO": {
-      "orig": 5,
-      "sent": 0,
-      "rec": 0
     }
   },
   "catBreakdown": {
@@ -2612,12 +2602,7 @@
       "orig": 11,
       "sent": 0,
       "rec": 0
-    },
-    "CATEGORIA VEMO": {
-      "orig": 5,
-      "sent": 0,
-      "rec": 0
     }
   },
-  "generated": "2026-06-15T16:47:38.529980Z"
+  "generated": "2026-06-15T17:59:31.971193Z"
 }
