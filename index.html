@@ -87,6 +87,7 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
 .footer{margin-top:40px;padding:16px 0;border-top:1px solid rgba(31,85,86,.15);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
 .footer-left{font-size:10px;color:var(--text3);}
 .footer-conf{font-size:9px;color:var(--text3);border:1px solid var(--gray);border-radius:3px;padding:3px 9px;letter-spacing:.1em;text-transform:uppercase;}
+.hm-filter-btn.active { background: #11ABAB !important; color: #fff !important; }
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .fade-in{animation:fadeIn .4s ease forwards;}
 @media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr);}.grid-3{grid-template-columns:1fr;}.page{padding:0 16px 40px 16px;}}
@@ -202,6 +203,21 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
       </div>
     </div>
     <div class="chart-card-body" style="padding:12px 16px 16px;">
+      <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:8px;padding:7px 10px;background:rgba(31,85,86,.04);border-radius:6px;border:1px solid rgba(31,85,86,.1);">
+        <span style="font-size:10px;font-weight:700;color:#4a6060;letter-spacing:.06em;text-transform:uppercase;margin-right:4px;">Filtrar:</span>
+        <button class="hm-filter-btn btn-sm" data-type="plat" data-val="UBER" onclick="setHmFilter('plat','UBER')">UBER</button>
+        <button class="hm-filter-btn btn-sm" data-type="plat" data-val="DIDI" onclick="setHmFilter('plat','DIDI')">DIDI</button>
+        <span style="color:#ccc;padding:0 3px;">|</span>
+        <button class="hm-filter-btn btn-sm" data-type="tech" data-val="EV" onclick="setHmFilter('tech','EV')">EV</button>
+        <button class="hm-filter-btn btn-sm" data-type="tech" data-val="ICE" onclick="setHmFilter('tech','ICE')">ICE</button>
+        <button class="hm-filter-btn btn-sm" data-type="tech" data-val="HEV" onclick="setHmFilter('tech','HEV')">HEV</button>
+        <span style="color:#ccc;padding:0 3px;">|</span>
+        <button class="hm-filter-btn btn-sm" data-type="cat" data-val="SEDAN" onclick="setHmFilter('cat','SEDAN')">SEDAN</button>
+        <button class="hm-filter-btn btn-sm" data-type="cat" data-val="PREMIUM" onclick="setHmFilter('cat','PREMIUM')">PREMIUM</button>
+        <button class="hm-filter-btn btn-sm" data-type="cat" data-val="MINI SUV" onclick="setHmFilter('cat','MINI SUV')">MINI SUV</button>
+        <button class="hm-filter-btn btn-sm" data-type="cat" data-val="LIGHT" onclick="setHmFilter('cat','LIGHT')">LIGHT</button>
+        <button class="hm-filter-btn btn-sm" data-type="" data-val="" onclick="setHmFilter(null,null)" style="background:rgba(31,85,86,.08);color:#4a6060;">&#x2715; Todos</button>
+      </div>
       <div id="hm-n-note" style="font-size:10px;color:var(--text3);margin-bottom:8px;min-height:14px;"></div>
       <div style="overflow-x:auto;overflow-y:auto;max-height:460px;" id="hmContainer"></div>
       <div style="display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;">
@@ -507,6 +523,9 @@ let COSECHA_TABLE = [
   {c:'04-2026',t:0,ca:0,p:0,nOrig:218},
   {c:'05-2026',t:0,ca:0,p:0,nOrig:171}
 ].filter(d=>d.t>0||d.nOrig>0);
+let VD_BY_FILTER={}, COSECHA_BY_FILTER={}, N_ORIG_PLAT={};
+let HM_FILTER_TYPE=null, HM_FILTER_VAL=null;
+let VD_CURRENT=VD, COSECHA_TABLE_CURRENT=COSECHA_TABLE;
 // ── COLORS ────────────────────────────────────────────────────────────────────
 function hslHex(h,s,l){s/=100;l/=100;const a=s*Math.min(l,1-l);const f=n=>{const k=(n+h/30)%12;const c=l-a*Math.max(Math.min(k-3,9-k,1),-1);return Math.round(255*c).toString(16).padStart(2,'0');};return '#'+f(0)+f(8)+f(4);}
 const YEAR_PAL={'2022':{h:270,s:55,lb:42},'2023':{h:210,s:65,lb:35},'2024':{h:150,s:60,lb:32},'2025':{h:35,s:85,lb:38},'2026':{h:5,s:75,lb:42}};
@@ -678,6 +697,20 @@ function buildBreakdownCard(data,chartId,rowsId,metaId,pal,sortFn){
   rowsEl.innerHTML=html;
 }
 // ── HEATMAP ───────────────────────────────────────────────────────────────────
+function setHmFilter(type,val){
+  const same=HM_FILTER_TYPE===type&&HM_FILTER_VAL===val;
+  HM_FILTER_TYPE=same?null:type;
+  HM_FILTER_VAL=same?null:val;
+  if(HM_FILTER_TYPE&&VD_BY_FILTER[HM_FILTER_TYPE]&&VD_BY_FILTER[HM_FILTER_TYPE][HM_FILTER_VAL]){
+    VD_CURRENT=VD_BY_FILTER[HM_FILTER_TYPE][HM_FILTER_VAL];
+    COSECHA_TABLE_CURRENT=(COSECHA_BY_FILTER[HM_FILTER_TYPE]&&COSECHA_BY_FILTER[HM_FILTER_TYPE][HM_FILTER_VAL])||COSECHA_TABLE;
+  } else {
+    VD_CURRENT=VD; COSECHA_TABLE_CURRENT=COSECHA_TABLE;
+    HM_FILTER_TYPE=null; HM_FILTER_VAL=null;
+  }
+  document.querySelectorAll('.hm-filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.type===HM_FILTER_TYPE&&b.dataset.val===HM_FILTER_VAL));
+  buildHeatmap(); buildTable(); buildOrigRates(); buildCosechaBar();
+}
 let hmMode='cum',hmNMode='env',hmGrouping='monthly',hmVisibleYears=new Set(['2024','2025','2026']);
 function setHmMode(m){hmMode=m;['cum','inc','cnt'].forEach(id=>document.getElementById('hm-'+id).classList.toggle('active',id===m));buildHeatmap();}
 function setHmN(mode){hmNMode=mode;document.getElementById('hm-nenv').classList.toggle('active',mode==='env');document.getElementById('hm-norig').classList.toggle('active',mode==='orig');document.getElementById('hm-nactiva').classList.toggle('active',mode==='activa');document.getElementById('hm-n-note').textContent=mode==='orig'?'← N = new originations for the month (Originations sheet)':mode==='activa'?'← N = active fleet size at that cohort month (Flota Activa sheet)':'';buildHeatmap();}
@@ -686,7 +719,7 @@ function setHmGrouping(g){hmGrouping=g;document.getElementById('hmg-monthly').cl
 function heatColor(t){if(t<=0)return{bg:'#F8F8F8',fg:'#ccc'};let r,g,b;if(t<0.5){const x=t*2;r=Math.round(248+(255-248)*x);g=Math.round(248+(185-248)*x);b=Math.round(248+(80-248)*x);}else{const x=(t-0.5)*2;r=Math.round(255+(210-255)*x);g=Math.round(185+(60-185)*x);b=Math.round(80+(50-80)*x);}const lum=.299*r+.587*g+.114*b;return{bg:'rgb('+r+','+g+','+b+')',fg:lum>140?'#1a2424':'#ffffff'};}
 function buildHeatmap(){
   const maxM=36,CELL_W=44,LBL_W=88,N_W=48;let rows=[];
-  if(hmGrouping==='monthly'){Object.keys(VD).forEach(cos=>{const yr=cos.split('-')[1];if(yr==='2022'||yr==='2023')return;if(!hmVisibleYears.has(yr))return;const d=VD[cos];const nE=d.n;const nO=N_ORIG[cos]||null;const nA=N_ACTIVA[cos]||null;const N=hmNMode==='orig'?(nO||nE):hmNMode==='activa'?(nA||nE):nE;const[mmC,yyC]=cos.split('-').map(Number);const{mm:ldMM,yy:ldYY}=getLastYM();const maxPossM=Math.min(Math.max(0,(ldYY-yyC)*12+(ldMM-mmC)),36);rows.push({label:cos,curve:d.c,nEnv:nE,N,year:yr,maxPossM});});Object.keys(N_ORIG).forEach(cos=>{if(VD[cos])return;const yr=cos.split('-')[1];if(yr==='2022'||yr==='2023')return;if(!hmVisibleYears.has(yr))return;const nO=N_ORIG[cos]||0;if(!nO)return;const nA=N_ACTIVA[cos]||null;const N=hmNMode==='orig'?nO:hmNMode==='activa'?(nA||nO):0;const[mmC,yyC]=cos.split('-').map(Number);const{mm:ldMM,yy:ldYY}=getLastYM();const maxPossM=Math.min(Math.max(0,(ldYY-yyC)*12+(ldMM-mmC)),36);rows.push({label:cos,curve:[],nEnv:0,N,year:yr,maxPossM,noEnv:true});});}
+  if(hmGrouping==='monthly'){Object.keys(VD_CURRENT).forEach(cos=>{const yr=cos.split('-')[1];if(yr==='2022'||yr==='2023')return;if(!hmVisibleYears.has(yr))return;const d=VD_CURRENT[cos];const nE=d.n;const nO=N_ORIG[cos]||null;const nA=N_ACTIVA[cos]||null;const N=hmNMode==='orig'?(nO||nE):hmNMode==='activa'?(nA||nE):nE;const[mmC,yyC]=cos.split('-').map(Number);const{mm:ldMM,yy:ldYY}=getLastYM();const maxPossM=Math.min(Math.max(0,(ldYY-yyC)*12+(ldMM-mmC)),36);rows.push({label:cos,curve:d.c,nEnv:nE,N,year:yr,maxPossM});});Object.keys(N_ORIG).forEach(cos=>{if(HM_FILTER_TYPE)return;if(VD_CURRENT[cos])return;const yr=cos.split('-')[1];if(yr==='2022'||yr==='2023')return;if(!hmVisibleYears.has(yr))return;const nO=N_ORIG[cos]||0;if(!nO)return;const nA=N_ACTIVA[cos]||null;const N=hmNMode==='orig'?nO:hmNMode==='activa'?(nA||nO):0;const[mmC,yyC]=cos.split('-').map(Number);const{mm:ldMM,yy:ldYY}=getLastYM();const maxPossM=Math.min(Math.max(0,(ldYY-yyC)*12+(ldMM-mmC)),36);rows.push({label:cos,curve:[],nEnv:0,N,year:yr,maxPossM,noEnv:true});});}
   else{const qMap={};Object.keys(VD).forEach(cos=>{const yr=cos.split('-')[1];if(yr==='2022'||yr==='2023')return;if(!hmVisibleYears.has(yr))return;const q=getQ(cos);if(!qMap[q])qMap[q]=[];qMap[q].push(cos);});Object.keys(qMap).sort((a,b)=>{const[qa,ya]=a.split('-');const[qb,yb]=b.split('-');return parseInt(ya)!==parseInt(yb)?parseInt(ya)-parseInt(yb):parseInt(qa.slice(1))-parseInt(qb.slice(1));}).forEach(q=>{const _nMode=hmNMode==='activa'?'env':hmNMode;const m=mergeCosechas(qMap[q],_nMode);if(hmNMode==='activa'){const qYr=q.split('-')[1];const cosInQ=qMap[q];let totA=0;cosInQ.forEach(c=>{totA+=N_ACTIVA[c]||0;});if(totA>0)m.n=Math.round(totA/cosInQ.length);}const[qP,yP]=q.split('-');const lastMoQ=parseInt(qP.slice(1))*3;const{mm:ldMM2,yy:ldYY2}=getLastYM();const maxPossM=Math.min(Math.max(0,(ldYY2-parseInt(yP))*12+(ldMM2-lastMoQ)),36);rows.push({label:q,curve:m.c,nEnv:m.n,N:m.n,year:yP,maxPossM});});}
   rows.sort((a,b)=>{const[ma,ya]=a.label.split('-').map(Number);const[mb,yb]=b.label.split('-').map(Number);return ya!==yb?ya-yb:ma-mb;});
   const activeMaxM=rows.length?Math.max(...rows.map(r=>r.maxPossM)):maxM;const colMaxM=Math.min(activeMaxM,maxM);
@@ -743,7 +776,7 @@ function buildHeatmap(){
 let cosechaYear='all',_cosechaChartInst=null;
 function setCosechaYear(y){cosechaYear=y;['all','2024','2025','2026'].forEach(v=>document.getElementById('cb-'+v).classList.toggle('active',v===y));buildCosechaBar();}
 function buildCosechaBar(){
-  const rows=COSECHA_TABLE.filter(d=>d.t>=5&&(cosechaYear==='all'||d.c.split('-')[1]===cosechaYear));
+  const rows=COSECHA_TABLE_CURRENT.filter(d=>d.t>=5&&(cosechaYear==='all'||d.c.split('-')[1]===cosechaYear));
   if(_cosechaChartInst){_cosechaChartInst.destroy();_cosechaChartInst=null;}
   _cosechaChartInst=new Chart(document.getElementById('cosechaBarChart').getContext('2d'),{type:'bar',data:{labels:rows.map(d=>d.c),datasets:[{label:'Sent to Recovery',data:rows.map(d=>d.t),backgroundColor:'rgba(31,85,86,.55)',borderRadius:2,borderSkipped:false},{label:'Repossessed',data:rows.map(d=>d.ca),backgroundColor:'rgba(17,171,171,.85)',borderRadius:2,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{font:{size:11},color:'#4a6060',boxWidth:14,boxHeight:4,padding:16}},tooltip:{backgroundColor:'rgba(31,85,86,.95)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,callbacks:{label:i=>` ${i.dataset.label}: ${i.raw}`,afterBody:items=>{const d=rows[items[0].dataIndex];const pct=(d.ca/d.t*100).toFixed(1);return['──────────────',`Repossessed: ${d.ca}/${d.t} (${pct}%)`,`Pending: ${d.p}`];}}}},scales:{x:{grid:{display:false},ticks:{font:{size:9},color:'#8a9a9a',maxRotation:45}},y:{beginAtZero:true,grid:{color:'rgba(31,85,86,.07)'},ticks:{font:{size:10},color:'#8a9a9a'}}}}});
 }
@@ -761,7 +794,7 @@ function pctCellInv(v){
   return `<span class="pct-cell ${cls}">${v.toFixed(1)}%</span>`;
 }
 function buildTable(){
-  const allRows=COSECHA_TABLE.filter(d=>{const yr=d.c.split('-')[1];return yr!=='2022'&&yr!=='2023'&&(tblYear==='all'||yr===tblYear);});
+  const allRows=COSECHA_TABLE_CURRENT.filter(d=>{const yr=d.c.split('-')[1];return yr!=='2022'&&yr!=='2023'&&(tblYear==='all'||yr===tblYear);});
   let rows=[];
   if(tblGrouping==='monthly'){rows=allRows.map(d=>({label:d.c,t:d.t,ca:d.ca,p:d.p,nOrig:d.nOrig})).sort((a,b)=>cosSort(a.label,b.label));}
   else{const qMap={};allRows.forEach(d=>{const q=getQ(d.c);if(!qMap[q])qMap[q]={label:q,t:0,ca:0,p:0,nOrig:0};qMap[q].t+=d.t;qMap[q].ca+=d.ca;qMap[q].p+=d.p;qMap[q].nOrig+=d.nOrig;});rows=Object.keys(qMap).sort((a,b)=>{const[qa,ya]=a.split('-');const[qb,yb]=b.split('-');return parseInt(ya)!==parseInt(yb)?parseInt(ya)-parseInt(yb):parseInt(qa.slice(1))-parseInt(qb.slice(1));}).map(k=>qMap[k]);}
@@ -786,7 +819,7 @@ function setOrigRatesDenom(d){
 }
 let _origRatesChartInst=null;
 function buildOrigRates(){
-  const allRows=COSECHA_TABLE.filter(d=>{const yr=d.c.split('-')[1];return yr!=='2022'&&yr!=='2023'&&(tblYear==='all'||yr===tblYear);});
+  const allRows=COSECHA_TABLE_CURRENT.filter(d=>{const yr=d.c.split('-')[1];return yr!=='2022'&&yr!=='2023'&&(tblYear==='all'||yr===tblYear);});
   let rows=[];
   if(tblGrouping==='monthly'){rows=allRows.map(d=>({label:d.c,t:d.t,ca:d.ca,nOrig:d.nOrig}));}
   else{const qMap={};allRows.forEach(d=>{const q=getQ(d.c);if(!qMap[q])qMap[q]={label:q,t:0,ca:0,nOrig:0};qMap[q].t+=d.t;qMap[q].ca+=d.ca;qMap[q].nOrig+=d.nOrig;});rows=Object.keys(qMap).sort((a,b)=>{const[qa,ya]=a.split('-');const[qb,yb]=b.split('-');return parseInt(ya)!==parseInt(yb)?parseInt(ya)-parseInt(yb):parseInt(qa.slice(1))-parseInt(qb.slice(1));}).map(k=>qMap[k]);}
@@ -861,6 +894,11 @@ window.addEventListener('load',async()=>{
     if(d.techBreakdown)TECH_BD=d.techBreakdown;
     if(d.anioBreakdown)ANIO_BD=d.anioBreakdown;
     if(d.catBreakdown)CAT_BD=d.catBreakdown;
+    if(d.vdByFilter)VD_BY_FILTER=d.vdByFilter;
+    if(d.cosechaByFilter)COSECHA_BY_FILTER=d.cosechaByFilter;
+    if(d.nOrigPlat)N_ORIG_PLAT=d.nOrigPlat;
+    VD_CURRENT=VD;
+    COSECHA_TABLE_CURRENT=COSECHA_TABLE;
     if(d.kpis){const k=d.kpis;
       const se=document.getElementById('kpi-sent');if(se)se.textContent=k.sent.toLocaleString();
       const re=document.getElementById('kpi-repos');if(re)re.textContent=k.repos.toLocaleString();
