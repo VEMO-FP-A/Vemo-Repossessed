@@ -87,7 +87,18 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
 .footer{margin-top:40px;padding:16px 0;border-top:1px solid rgba(31,85,86,.15);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
 .footer-left{font-size:10px;color:var(--text3);}
 .footer-conf{font-size:9px;color:var(--text3);border:1px solid var(--gray);border-radius:3px;padding:3px 9px;letter-spacing:.1em;text-transform:uppercase;}
-.hm-filter-btn.active { background: #11ABAB !important; color: #fff !important; }
+.hm-filter-btn {
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:3px 10px;border-radius:20px;border:1px solid rgba(31,85,86,.25);
+  background:#fff;color:#4a6060;font-size:10px;font-weight:700;cursor:pointer;
+  letter-spacing:.04em;transition:all .15s;white-space:nowrap;
+}
+.hm-filter-btn:hover { background:rgba(17,171,171,.1);border-color:#11ABAB;color:#11ABAB; }
+.hm-filter-btn.active { background:#11ABAB !important;color:#fff !important;border-color:#11ABAB !important; }
+.hm-filter-grp { display:flex;gap:4px;align-items:center; }
+.hm-filter-grp-label { font-size:9px;font-weight:700;color:#8aacac;text-transform:uppercase;letter-spacing:.07em;margin-right:1px; }
+.hm-filter-sep { width:1px;height:20px;background:rgba(31,85,86,.15);margin:0 4px; }
+.hm-filter-reset { background:rgba(31,85,86,.07) !important;color:#4a6060 !important;border-color:transparent !important;font-size:9px; }
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .fade-in{animation:fadeIn .4s ease forwards;}
 @media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr);}.grid-3{grid-template-columns:1fr;}.page{padding:0 16px 40px 16px;}}
@@ -203,20 +214,29 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
       </div>
     </div>
     <div class="chart-card-body" style="padding:12px 16px 16px;">
-      <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:8px;padding:7px 10px;background:rgba(31,85,86,.04);border-radius:6px;border:1px solid rgba(31,85,86,.1);">
-        <span style="font-size:10px;font-weight:700;color:#4a6060;letter-spacing:.06em;text-transform:uppercase;margin-right:4px;">Filtrar:</span>
-        <button class="hm-filter-btn btn-sm" data-type="plat" data-val="UBER" onclick="setHmFilter('plat','UBER')">UBER</button>
-        <button class="hm-filter-btn btn-sm" data-type="plat" data-val="DIDI" onclick="setHmFilter('plat','DIDI')">DIDI</button>
-        <span style="color:#ccc;padding:0 3px;">|</span>
-        <button class="hm-filter-btn btn-sm" data-type="tech" data-val="EV" onclick="setHmFilter('tech','EV')">EV</button>
-        <button class="hm-filter-btn btn-sm" data-type="tech" data-val="ICE" onclick="setHmFilter('tech','ICE')">ICE</button>
-        <button class="hm-filter-btn btn-sm" data-type="tech" data-val="HEV" onclick="setHmFilter('tech','HEV')">HEV</button>
-        <span style="color:#ccc;padding:0 3px;">|</span>
-        <button class="hm-filter-btn btn-sm" data-type="cat" data-val="SEDAN" onclick="setHmFilter('cat','SEDAN')">SEDAN</button>
-        <button class="hm-filter-btn btn-sm" data-type="cat" data-val="PREMIUM" onclick="setHmFilter('cat','PREMIUM')">PREMIUM</button>
-        <button class="hm-filter-btn btn-sm" data-type="cat" data-val="MINI SUV" onclick="setHmFilter('cat','MINI SUV')">MINI SUV</button>
-        <button class="hm-filter-btn btn-sm" data-type="cat" data-val="LIGHT" onclick="setHmFilter('cat','LIGHT')">LIGHT</button>
-        <button class="hm-filter-btn btn-sm" data-type="" data-val="" onclick="setHmFilter(null,null)" style="background:rgba(31,85,86,.08);color:#4a6060;">&#x2715; Todos</button>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px;padding:8px 12px;background:rgba(31,85,86,.04);border-radius:8px;border:1px solid rgba(31,85,86,.1);">
+        <div class="hm-filter-grp">
+          <span class="hm-filter-grp-label">Plataforma</span>
+          <button class="hm-filter-btn" data-type="plat" data-val="UBER" onclick="setHmFilter('plat','UBER')">UBER</button>
+          <button class="hm-filter-btn" data-type="plat" data-val="DIDI" onclick="setHmFilter('plat','DIDI')">DIDI</button>
+        </div>
+        <div class="hm-filter-sep"></div>
+        <div class="hm-filter-grp">
+          <span class="hm-filter-grp-label">Tech</span>
+          <button class="hm-filter-btn" data-type="tech" data-val="EV" onclick="setHmFilter('tech','EV')">EV</button>
+          <button class="hm-filter-btn" data-type="tech" data-val="ICE" onclick="setHmFilter('tech','ICE')">ICE</button>
+          <button class="hm-filter-btn" data-type="tech" data-val="HEV" onclick="setHmFilter('tech','HEV')">HEV</button>
+        </div>
+        <div class="hm-filter-sep"></div>
+        <div class="hm-filter-grp">
+          <span class="hm-filter-grp-label">Categoría</span>
+          <button class="hm-filter-btn" data-type="cat" data-val="SEDAN" onclick="setHmFilter('cat','SEDAN')">SEDAN</button>
+          <button class="hm-filter-btn" data-type="cat" data-val="PREMIUM" onclick="setHmFilter('cat','PREMIUM')">PREMIUM</button>
+          <button class="hm-filter-btn" data-type="cat" data-val="MINI SUV" onclick="setHmFilter('cat','MINI SUV')">MINI SUV</button>
+          <button class="hm-filter-btn" data-type="cat" data-val="LIGHT" onclick="setHmFilter('cat','LIGHT')">LIGHT</button>
+        </div>
+        <div class="hm-filter-sep"></div>
+        <button class="hm-filter-btn hm-filter-reset" onclick="setHmFilter(null,null)">&#x2715; Todos</button>
       </div>
       <div id="hm-n-note" style="font-size:10px;color:var(--text3);margin-bottom:8px;min-height:14px;"></div>
       <div style="overflow-x:auto;overflow-y:auto;max-height:460px;" id="hmContainer"></div>
@@ -282,7 +302,10 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
 
   <!-- COHORT DETAIL TABLE — before bar chart -->
   <div class="section-head-light">
-    <span>Cohort Detail</span>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span>Cohort Detail</span>
+      <span id="tbl-filter-badge" style="display:none;padding:2px 9px;border-radius:20px;background:#11ABAB;color:#fff;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;"></span>
+    </div>
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
       <button class="tbl-f-btn active" id="tbl-yr-all"  onclick="setTblYear('all')">All</button>
       <button class="tbl-f-btn" id="tbl-yr-2024" onclick="setTblYear('2024')">2024</button>
@@ -709,6 +732,8 @@ function setHmFilter(type,val){
     HM_FILTER_TYPE=null; HM_FILTER_VAL=null;
   }
   document.querySelectorAll('.hm-filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.type===HM_FILTER_TYPE&&b.dataset.val===HM_FILTER_VAL));
+  const badge=document.getElementById('tbl-filter-badge');
+  if(badge){if(HM_FILTER_TYPE&&HM_FILTER_VAL){badge.textContent=HM_FILTER_VAL;badge.style.display='inline-block';}else{badge.style.display='none';}}
   buildHeatmap(); buildTable(); buildOrigRates(); buildCosechaBar();
 }
 let hmMode='cum',hmNMode='env',hmGrouping='monthly',hmVisibleYears=new Set(['2024','2025','2026']);
@@ -794,17 +819,51 @@ function pctCellInv(v){
   return `<span class="pct-cell ${cls}">${v.toFixed(1)}%</span>`;
 }
 function buildTable(){
+  const filtered=!!HM_FILTER_TYPE;
   const allRows=COSECHA_TABLE_CURRENT.filter(d=>{const yr=d.c.split('-')[1];return yr!=='2022'&&yr!=='2023'&&(tblYear==='all'||yr===tblYear);});
   let rows=[];
-  if(tblGrouping==='monthly'){rows=allRows.map(d=>({label:d.c,t:d.t,ca:d.ca,p:d.p,nOrig:d.nOrig})).sort((a,b)=>cosSort(a.label,b.label));}
-  else{const qMap={};allRows.forEach(d=>{const q=getQ(d.c);if(!qMap[q])qMap[q]={label:q,t:0,ca:0,p:0,nOrig:0};qMap[q].t+=d.t;qMap[q].ca+=d.ca;qMap[q].p+=d.p;qMap[q].nOrig+=d.nOrig;});rows=Object.keys(qMap).sort((a,b)=>{const[qa,ya]=a.split('-');const[qb,yb]=b.split('-');return parseInt(ya)!==parseInt(yb)?parseInt(ya)-parseInt(yb):parseInt(qa.slice(1))-parseInt(qb.slice(1));}).map(k=>qMap[k]);}
-  let html='',totT=0,totCa=0,totP=0,totOrig=0;
+  if(tblGrouping==='monthly'){
+    rows=allRows.map(d=>({label:d.c,t:d.t,ca:d.ca,p:d.p,nOrig:d.nOrig})).sort((a,b)=>cosSort(a.label,b.label));
+  } else {
+    const qMap={};
+    allRows.forEach(d=>{
+      const q=getQ(d.c);
+      if(!qMap[q])qMap[q]={label:q,t:0,ca:0,p:0,_hasP:false,nOrig:0};
+      qMap[q].t+=d.t;qMap[q].ca+=d.ca;
+      if(d.p!==undefined&&d.p!==null){qMap[q].p+=(+d.p||0);qMap[q]._hasP=true;}
+      qMap[q].nOrig+=(d.nOrig||0);
+    });
+    rows=Object.keys(qMap).sort((a,b)=>{const[qa,ya]=a.split('-');const[qb,yb]=b.split('-');return parseInt(ya)!==parseInt(yb)?parseInt(ya)-parseInt(yb):parseInt(qa.slice(1))-parseInt(qb.slice(1));}).map(k=>{const r=qMap[k];return{label:r.label,t:r.t,ca:r.ca,p:r._hasP?r.p:undefined,nOrig:r.nOrig};});
+  }
+  let html='',totT=0,totCa=0,totP=0,totOrig=0,hasPCol=rows.some(r=>r.p!==undefined&&r.p!==null);
   const _showActiva=tblDenom==='activa';
-  rows.forEach(r=>{const recPct=r.t>0?r.ca/r.t*100:0;totT+=r.t;totCa+=r.ca;totP+=r.p;totOrig+=r.nOrig;const nA=N_ACTIVA[r.label]||r.nOrig;const _den=_showActiva?nA:r.nOrig;const sentPct=_den>0?r.t/_den*100:0;const recOrigPct=_den>0?r.ca/_den*100:0;const activaCell=_showActiva?`<td style="color:var(--text3);font-weight:600;">${nA.toLocaleString()}</td>`:'<td style="display:none;"></td>';html+=`<tr><td>${r.label}</td><td>${r.nOrig||'—'}</td>${activaCell}<td>${r.t}</td><td>${r.ca}</td><td>${r.p}</td><td>${pctCell(recPct)}</td><td>${pctCellInv(sentPct)}</td><td>${pctCellInv(recOrigPct)}</td></tr>`;});
-  const totRecPct=totT>0?totCa/totT*100:0;const _totDen=tblDenom==='activa'?rows.reduce((s,r)=>s+(N_ACTIVA[r.label]||r.nOrig),0):totOrig;const totSentPct=_totDen>0?totT/_totDen*100:0;const totRecOrigPct=_totDen>0?totCa/_totDen*100:0;
-  const totActiva=rows.reduce((s,r)=>s+(N_ACTIVA[r.label]||r.nOrig),0);
+  rows.forEach(r=>{
+    const recPct=r.t>0?r.ca/r.t*100:0;
+    totT+=r.t;totCa+=r.ca;
+    if(r.p!==undefined&&r.p!==null)totP+=(+r.p||0);
+    totOrig+=(r.nOrig||0);
+    const nA=N_ACTIVA[r.label]||(r.nOrig||0);
+    const _den=_showActiva?nA:(r.nOrig||0);
+    const sentPct=!filtered&&_den>0?r.t/_den*100:null;
+    const recOrigPct=!filtered&&_den>0?r.ca/_den*100:null;
+    const activaCell=_showActiva?`<td style="color:var(--text3);font-weight:600;">${(nA).toLocaleString()}</td>`:'<td style="display:none;"></td>';
+    const origCell=filtered?'<td style="color:var(--text3);">—</td>':`<td>${r.nOrig||'—'}</td>`;
+    const pendCell=(r.p!==undefined&&r.p!==null)?`<td>${r.p}</td>`:'<td style="color:var(--text3);">—</td>';
+    const sentPctCell=sentPct!==null?pctCellInv(sentPct):`<span style="color:var(--text3);">—</span>`;
+    const recOrigPctCell=recOrigPct!==null?pctCellInv(recOrigPct):`<span style="color:var(--text3);">—</span>`;
+    html+=`<tr><td>${r.label}</td>${origCell}${activaCell}<td>${r.t}</td><td>${r.ca}</td>${pendCell}<td>${pctCell(recPct)}</td><td>${sentPctCell}</td><td>${recOrigPctCell}</td></tr>`;
+  });
+  const totRecPct=totT>0?totCa/totT*100:0;
+  const _totDen=tblDenom==='activa'?rows.reduce((s,r)=>s+(N_ACTIVA[r.label]||r.nOrig||0),0):totOrig;
+  const totSentPct=!filtered&&_totDen>0?totT/_totDen*100:null;
+  const totRecOrigPct=!filtered&&_totDen>0?totCa/_totDen*100:null;
+  const totActiva=rows.reduce((s,r)=>s+(N_ACTIVA[r.label]||r.nOrig||0),0);
   const totalActivaCell=_showActiva?`<td>${totActiva.toLocaleString()}</td>`:'<td style="display:none;"></td>';
-  html+=`<tr class="tr-total"><td>Total</td><td>${totOrig}</td>${totalActivaCell}<td>${totT}</td><td>${totCa}</td><td>${totP}</td><td>${pctCell(totRecPct)}</td><td>${pctCellInv(totSentPct)}</td><td>${pctCellInv(totRecOrigPct)}</td></tr>`;
+  const totOrigCell=filtered?'<td style="color:var(--text3);">—</td>':`<td>${totOrig}</td>`;
+  const totPendCell=hasPCol?`<td>${totP}</td>`:'<td style="color:var(--text3);">—</td>';
+  const totSentCell=totSentPct!==null?pctCellInv(totSentPct):`<span style="color:var(--text3);">—</span>`;
+  const totRecOrigCell=totRecOrigPct!==null?pctCellInv(totRecOrigPct):`<span style="color:var(--text3);">—</span>`;
+  html+=`<tr class="tr-total"><td>Total</td>${totOrigCell}${totalActivaCell}<td>${totT}</td><td>${totCa}</td>${totPendCell}<td>${pctCell(totRecPct)}</td><td>${totSentCell}</td><td>${totRecOrigCell}</td></tr>`;
   document.getElementById('cosechaTableBody').innerHTML=html;
 }
 // ── ORIG RATES ────────────────────────────────────────────────────────────────
