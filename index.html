@@ -228,14 +228,6 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
           <button class="hm-filter-btn" data-type="tech" data-val="HEV" onclick="setHmFilter('tech','HEV')">HEV</button>
         </div>
         <div class="hm-filter-sep"></div>
-        <div class="hm-filter-grp">
-          <span class="hm-filter-grp-label">Categoría</span>
-          <button class="hm-filter-btn" data-type="cat" data-val="SEDAN" onclick="setHmFilter('cat','SEDAN')">SEDAN</button>
-          <button class="hm-filter-btn" data-type="cat" data-val="PREMIUM" onclick="setHmFilter('cat','PREMIUM')">PREMIUM</button>
-          <button class="hm-filter-btn" data-type="cat" data-val="MINI SUV" onclick="setHmFilter('cat','MINI SUV')">MINI SUV</button>
-          <button class="hm-filter-btn" data-type="cat" data-val="LIGHT" onclick="setHmFilter('cat','LIGHT')">LIGHT</button>
-        </div>
-        <div class="hm-filter-sep"></div>
         <button class="hm-filter-btn hm-filter-reset" onclick="setHmFilter(null,null)">&#x2715; Todos</button>
       </div>
       <div id="hm-n-note" style="font-size:10px;color:var(--text3);margin-bottom:8px;min-height:14px;"></div>
@@ -331,14 +323,6 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
       <button class="hm-filter-btn tbl-hm-btn" data-type="tech" data-val="EV" onclick="setHmFilter('tech','EV')">EV</button>
       <button class="hm-filter-btn tbl-hm-btn" data-type="tech" data-val="ICE" onclick="setHmFilter('tech','ICE')">ICE</button>
       <button class="hm-filter-btn tbl-hm-btn" data-type="tech" data-val="HEV" onclick="setHmFilter('tech','HEV')">HEV</button>
-    </div>
-    <div class="hm-filter-sep"></div>
-    <div class="hm-filter-grp">
-      <span class="hm-filter-grp-label">Categoría</span>
-      <button class="hm-filter-btn tbl-hm-btn" data-type="cat" data-val="SEDAN" onclick="setHmFilter('cat','SEDAN')">SEDAN</button>
-      <button class="hm-filter-btn tbl-hm-btn" data-type="cat" data-val="PREMIUM" onclick="setHmFilter('cat','PREMIUM')">PREMIUM</button>
-      <button class="hm-filter-btn tbl-hm-btn" data-type="cat" data-val="MINI SUV" onclick="setHmFilter('cat','MINI SUV')">MINI SUV</button>
-      <button class="hm-filter-btn tbl-hm-btn" data-type="cat" data-val="LIGHT" onclick="setHmFilter('cat','LIGHT')">LIGHT</button>
     </div>
     <div class="hm-filter-sep"></div>
     <button class="hm-filter-btn hm-filter-reset tbl-hm-btn" onclick="setHmFilter(null,null)">&#x2715; Todos</button>
@@ -570,7 +554,7 @@ let COSECHA_TABLE = [
   {c:'04-2026',t:0,ca:0,p:0,nOrig:218},
   {c:'05-2026',t:0,ca:0,p:0,nOrig:171}
 ].filter(d=>d.t>0||d.nOrig>0);
-let VD_BY_FILTER={}, COSECHA_BY_FILTER={}, N_ORIG_PLAT={};
+let VD_BY_FILTER={}, COSECHA_BY_FILTER={}, N_ORIG_PLAT={}, N_ORIG_TECH={};
 let HM_FILTER_TYPE=null, HM_FILTER_VAL=null;
 let VD_CURRENT=VD, COSECHA_TABLE_CURRENT=COSECHA_TABLE;
 // ── COLORS ────────────────────────────────────────────────────────────────────
@@ -722,13 +706,24 @@ const BD_PAL_CAT =['#11ABAB','#1F5556','#4a9898','#d4830a','#8ac8c8','#b8dede'];
 const _bdInst={};
 function buildBreakdownCard(data,chartId,rowsId,metaId,pal,sortFn,showRatio){
   if(showRatio===undefined)showRatio=true;
-  const defaultSort=(a,b)=>(b[1].orig||b[1].sent||0)-(a[1].orig||a[1].sent||0);
+  // showRatio===true  → Orig. | Rec. | % Rec/Orig  (Platform & Tech — real originations)
+  // showRatio==='sent'→ Env.  | Rec. | % Rec/Env   (Año & Cat — no orig data, use sent)
+  // showRatio===false → Rec. only (unused but kept for safety)
+  const hasRatio=showRatio===true||showRatio==='sent';
+  const origLabel=showRatio==='sent'?'Env.':'Orig.';
+  const ratioLabel=showRatio==='sent'?'%&nbsp;Rec/Env':'%&nbsp;Rec/Orig';
+  const getBase=v=>showRatio==='sent'?(v.sent||0):(v.orig||v.sent||0);
+  const defaultSort=(a,b)=>getBase(b[1])-getBase(a[1]);
   const entries=Object.entries(data).sort(sortFn||defaultSort);
   if(!entries.length)return;
-  const totalOrig=entries.reduce((s,[,v])=>s+(v.orig||v.sent||0),0);
+  const totalBase=entries.reduce((s,[,v])=>s+getBase(v),0);
   const totalRec=entries.reduce((s,[,v])=>s+v.rec,0);
   const el=document.getElementById(metaId);
-  if(el)el.textContent=showRatio?`${totalRec.toLocaleString()} rec. · ${totalOrig.toLocaleString()} orig.`:`${totalRec.toLocaleString()} recuperados`;
+  if(el){
+    if(showRatio===true)el.textContent=`${totalRec.toLocaleString()} rec. · ${totalBase.toLocaleString()} orig.`;
+    else if(showRatio==='sent')el.textContent=`${totalRec.toLocaleString()} rec. · ${totalBase.toLocaleString()} env. · ${totalBase>0?(totalRec/totalBase*100).toFixed(1)+'%':'—'}`;
+    else el.textContent=`${totalRec.toLocaleString()} recuperados`;
+  }
   const labels=entries.map(([k])=>k);
   const vals=entries.map(([,v])=>v.rec);
   const cols=pal.slice(0,labels.length);
@@ -736,13 +731,13 @@ function buildBreakdownCard(data,chartId,rowsId,metaId,pal,sortFn,showRatio){
   const ctx=document.getElementById(chartId);if(!ctx)return;
   _bdInst[chartId]=new Chart(ctx.getContext('2d'),{type:'doughnut',data:{labels,datasets:[{data:vals,backgroundColor:cols,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(31,85,86,.95)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',callbacks:{label:i=>` ${i.label}: ${i.raw} (${totalRec>0?(i.raw/totalRec*100).toFixed(1):'0'}%)`}}}}});
   const rowsEl=document.getElementById(rowsId);if(!rowsEl)return;
-  const gridCols=showRatio?'1fr auto auto auto':'1fr auto';
-  let html=`<div style="display:grid;grid-template-columns:${gridCols};gap:3px 8px;font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;padding-bottom:5px;border-bottom:1px solid rgba(31,85,86,.1);"><span></span>${showRatio?'<span style="text-align:right;">Orig.</span>':''}<span style="text-align:right;">Rec.</span>${showRatio?'<span style="text-align:right;">%&nbsp;Rec/Orig</span>':''}</div>`;
+  const gridCols=hasRatio?'1fr auto auto auto':'1fr auto';
+  let html=`<div style="display:grid;grid-template-columns:${gridCols};gap:3px 8px;font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;padding-bottom:5px;border-bottom:1px solid rgba(31,85,86,.1);"><span></span>${hasRatio?`<span style="text-align:right;">${origLabel}</span>`:''}<span style="text-align:right;">Rec.</span>${hasRatio?`<span style="text-align:right;">${ratioLabel}</span>`:''}</div>`;
   entries.forEach(([k,v],i)=>{
-    const orig=v.orig||v.sent||0;
-    const pct=orig>0?(v.rec/orig*100).toFixed(1)+'%':'—';
+    const base=getBase(v);
+    const pct=base>0?(v.rec/base*100).toFixed(1)+'%':'—';
     const border=i<entries.length-1?'border-bottom:1px solid rgba(31,85,86,.07);':'';
-    html+=`<div style="display:grid;grid-template-columns:${gridCols};gap:3px 8px;align-items:center;padding:5px 0;${border}"><div class="stat-name"><div class="stat-dot" style="background:${pal[i%pal.length]};"></div>${k}</div>${showRatio?`<span style="font-size:10px;font-weight:600;color:var(--text3);text-align:right;">${orig.toLocaleString()}</span>`:''}<span style="font-size:11px;font-weight:700;color:var(--text);text-align:right;">${v.rec.toLocaleString()}</span>${showRatio?`<span class="stat-pct pos" style="text-align:right;">${pct}</span>`:''}</div>`;
+    html+=`<div style="display:grid;grid-template-columns:${gridCols};gap:3px 8px;align-items:center;padding:5px 0;${border}"><div class="stat-name"><div class="stat-dot" style="background:${pal[i%pal.length]};"></div>${k}</div>${hasRatio?`<span style="font-size:10px;font-weight:600;color:var(--text3);text-align:right;">${base.toLocaleString()}</span>`:''}<span style="font-size:11px;font-weight:700;color:var(--text);text-align:right;">${v.rec.toLocaleString()}</span>${hasRatio?`<span class="stat-pct pos" style="text-align:right;">${pct}</span>`:''}</div>`;
   });
   rowsEl.innerHTML=html;
 }
@@ -847,10 +842,20 @@ function pctCellInv(v){
 }
 function buildTable(){
   const filtered=!!HM_FILTER_TYPE;
+  // Per-cohort origination map for the active filter (null = not available)
+  const filterOrigMap=filtered
+    ?(HM_FILTER_TYPE==='plat'?(N_ORIG_PLAT[HM_FILTER_VAL]||null)
+     :HM_FILTER_TYPE==='tech'?(N_ORIG_TECH[HM_FILTER_VAL]||null)
+     :null)
+    :null;
+  const hasFilterOrig=!!filterOrigMap&&Object.keys(filterOrigMap).length>0;
   const allRows=COSECHA_TABLE_CURRENT.filter(d=>{const yr=d.c.split('-')[1];return yr!=='2022'&&yr!=='2023'&&(tblYear==='all'||yr===tblYear);});
   let rows=[];
   if(tblGrouping==='monthly'){
-    rows=allRows.map(d=>({label:d.c,t:d.t,ca:d.ca,p:d.p,nOrig:d.nOrig})).sort((a,b)=>cosSort(a.label,b.label));
+    rows=allRows.map(d=>({
+      label:d.c,t:d.t,ca:d.ca,p:d.p,
+      nOrig:hasFilterOrig?(filterOrigMap[d.c]||0):d.nOrig
+    })).sort((a,b)=>cosSort(a.label,b.label));
   } else {
     const qMap={};
     allRows.forEach(d=>{
@@ -858,23 +863,26 @@ function buildTable(){
       if(!qMap[q])qMap[q]={label:q,t:0,ca:0,p:0,_hasP:false,nOrig:0};
       qMap[q].t+=d.t;qMap[q].ca+=d.ca;
       if(d.p!==undefined&&d.p!==null){qMap[q].p+=(+d.p||0);qMap[q]._hasP=true;}
-      qMap[q].nOrig+=(d.nOrig||0);
+      const cohortOrig=hasFilterOrig?(filterOrigMap[d.c]||0):(d.nOrig||0);
+      qMap[q].nOrig+=cohortOrig;
     });
     rows=Object.keys(qMap).sort((a,b)=>{const[qa,ya]=a.split('-');const[qb,yb]=b.split('-');return parseInt(ya)!==parseInt(yb)?parseInt(ya)-parseInt(yb):parseInt(qa.slice(1))-parseInt(qb.slice(1));}).map(k=>{const r=qMap[k];return{label:r.label,t:r.t,ca:r.ca,p:r._hasP?r.p:undefined,nOrig:r.nOrig};});
   }
+  // When filter is active but no per-filter orig data exists, show "—" for orig
+  const showOrig=!filtered||hasFilterOrig;
   let html='',totT=0,totCa=0,totP=0,totOrig=0,hasPCol=rows.some(r=>r.p!==undefined&&r.p!==null);
   const _showActiva=tblDenom==='activa';
   rows.forEach(r=>{
     const recPct=r.t>0?r.ca/r.t*100:0;
     totT+=r.t;totCa+=r.ca;
     if(r.p!==undefined&&r.p!==null)totP+=(+r.p||0);
-    totOrig+=(r.nOrig||0);
+    if(showOrig)totOrig+=(r.nOrig||0);
     const nA=N_ACTIVA[r.label]||(r.nOrig||0);
     const _den=_showActiva?nA:(r.nOrig||0);
-    const sentPct=!filtered&&_den>0?r.t/_den*100:null;
-    const recOrigPct=!filtered&&_den>0?r.ca/_den*100:null;
+    const sentPct=showOrig&&_den>0?r.t/_den*100:null;
+    const recOrigPct=showOrig&&_den>0?r.ca/_den*100:null;
     const activaCell=_showActiva?`<td style="color:var(--text3);font-weight:600;">${(nA).toLocaleString()}</td>`:'<td style="display:none;"></td>';
-    const origCell=filtered?'<td style="color:var(--text3);">—</td>':`<td>${r.nOrig||'—'}</td>`;
+    const origCell=showOrig?`<td>${r.nOrig||'—'}</td>`:'<td style="color:var(--text3);">—</td>';
     const pendCell=(r.p!==undefined&&r.p!==null)?`<td>${r.p}</td>`:'<td style="color:var(--text3);">—</td>';
     const sentPctCell=sentPct!==null?pctCellInv(sentPct):`<span style="color:var(--text3);">—</span>`;
     const recOrigPctCell=recOrigPct!==null?pctCellInv(recOrigPct):`<span style="color:var(--text3);">—</span>`;
@@ -882,11 +890,11 @@ function buildTable(){
   });
   const totRecPct=totT>0?totCa/totT*100:0;
   const _totDen=tblDenom==='activa'?rows.reduce((s,r)=>s+(N_ACTIVA[r.label]||r.nOrig||0),0):totOrig;
-  const totSentPct=!filtered&&_totDen>0?totT/_totDen*100:null;
-  const totRecOrigPct=!filtered&&_totDen>0?totCa/_totDen*100:null;
+  const totSentPct=showOrig&&_totDen>0?totT/_totDen*100:null;
+  const totRecOrigPct=showOrig&&_totDen>0?totCa/_totDen*100:null;
   const totActiva=rows.reduce((s,r)=>s+(N_ACTIVA[r.label]||r.nOrig||0),0);
   const totalActivaCell=_showActiva?`<td>${totActiva.toLocaleString()}</td>`:'<td style="display:none;"></td>';
-  const totOrigCell=filtered?'<td style="color:var(--text3);">—</td>':`<td>${totOrig}</td>`;
+  const totOrigCell=showOrig?`<td>${totOrig}</td>`:'<td style="color:var(--text3);">—</td>';
   const totPendCell=hasPCol?`<td>${totP}</td>`:'<td style="color:var(--text3);">—</td>';
   const totSentCell=totSentPct!==null?pctCellInv(totSentPct):`<span style="color:var(--text3);">—</span>`;
   const totRecOrigCell=totRecOrigPct!==null?pctCellInv(totRecOrigPct):`<span style="color:var(--text3);">—</span>`;
@@ -983,6 +991,7 @@ window.addEventListener('load',async()=>{
     if(d.vdByFilter)VD_BY_FILTER=d.vdByFilter;
     if(d.cosechaByFilter)COSECHA_BY_FILTER=d.cosechaByFilter;
     if(d.nOrigPlat)N_ORIG_PLAT=d.nOrigPlat;
+    if(d.nOrigTech)N_ORIG_TECH=d.nOrigTech;
     VD_CURRENT=VD;
     COSECHA_TABLE_CURRENT=COSECHA_TABLE;
     if(d.kpis){const k=d.kpis;
@@ -1007,8 +1016,8 @@ window.addEventListener('load',async()=>{
   buildDonut('platChart',['UBER','DIDI'],pd,['#11ABAB','#1F5556']);
   buildEstado();
   buildBreakdownCard(TECH_BD,'techChart','tech-rows','tech-meta',BD_PAL_TECH,null,true);
-  buildBreakdownCard(ANIO_BD,'anioChart','anio-rows','anio-meta',BD_PAL_ANIO,(a,b)=>Number(a[0])-Number(b[0]),false);
-  buildBreakdownCard(CAT_BD,'catChart','cat-rows','cat-meta',BD_PAL_CAT,null,false);
+  buildBreakdownCard(ANIO_BD,'anioChart','anio-rows','anio-meta',BD_PAL_ANIO,(a,b)=>Number(a[0])-Number(b[0]),'sent');
+  buildBreakdownCard(CAT_BD,'catChart','cat-rows','cat-meta',BD_PAL_CAT,null,'sent');
   buildHeatmap();
 });
 </script>
