@@ -319,6 +319,30 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
       <button class="tbl-f-btn" id="tbl-denom-activa" onclick="setTblDenom('activa')">vs. Active Units</button>
     </div>
   </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px;padding:8px 12px;background:rgba(31,85,86,.04);border-radius:8px;border:1px solid rgba(31,85,86,.1);">
+    <div class="hm-filter-grp">
+      <span class="hm-filter-grp-label">Plataforma</span>
+      <button class="hm-filter-btn tbl-hm-btn" data-type="plat" data-val="UBER" onclick="setHmFilter('plat','UBER')">UBER</button>
+      <button class="hm-filter-btn tbl-hm-btn" data-type="plat" data-val="DIDI" onclick="setHmFilter('plat','DIDI')">DIDI</button>
+    </div>
+    <div class="hm-filter-sep"></div>
+    <div class="hm-filter-grp">
+      <span class="hm-filter-grp-label">Tech</span>
+      <button class="hm-filter-btn tbl-hm-btn" data-type="tech" data-val="EV" onclick="setHmFilter('tech','EV')">EV</button>
+      <button class="hm-filter-btn tbl-hm-btn" data-type="tech" data-val="ICE" onclick="setHmFilter('tech','ICE')">ICE</button>
+      <button class="hm-filter-btn tbl-hm-btn" data-type="tech" data-val="HEV" onclick="setHmFilter('tech','HEV')">HEV</button>
+    </div>
+    <div class="hm-filter-sep"></div>
+    <div class="hm-filter-grp">
+      <span class="hm-filter-grp-label">Categoría</span>
+      <button class="hm-filter-btn tbl-hm-btn" data-type="cat" data-val="SEDAN" onclick="setHmFilter('cat','SEDAN')">SEDAN</button>
+      <button class="hm-filter-btn tbl-hm-btn" data-type="cat" data-val="PREMIUM" onclick="setHmFilter('cat','PREMIUM')">PREMIUM</button>
+      <button class="hm-filter-btn tbl-hm-btn" data-type="cat" data-val="MINI SUV" onclick="setHmFilter('cat','MINI SUV')">MINI SUV</button>
+      <button class="hm-filter-btn tbl-hm-btn" data-type="cat" data-val="LIGHT" onclick="setHmFilter('cat','LIGHT')">LIGHT</button>
+    </div>
+    <div class="hm-filter-sep"></div>
+    <button class="hm-filter-btn hm-filter-reset tbl-hm-btn" onclick="setHmFilter(null,null)">&#x2715; Todos</button>
+  </div>
   <div class="tbl-outer">
     <table class="dt">
       <thead><tr>
@@ -696,13 +720,15 @@ const BD_PAL_TECH=['#1F5556','#11ABAB','#4a9898','#8ac8c8'];
 const BD_PAL_ANIO=['#11ABAB','#1F5556','#d4830a','#4a9898','#8ac8c8'];
 const BD_PAL_CAT =['#11ABAB','#1F5556','#4a9898','#d4830a','#8ac8c8','#b8dede'];
 const _bdInst={};
-function buildBreakdownCard(data,chartId,rowsId,metaId,pal,sortFn){
+function buildBreakdownCard(data,chartId,rowsId,metaId,pal,sortFn,showRatio){
+  if(showRatio===undefined)showRatio=true;
   const defaultSort=(a,b)=>(b[1].orig||b[1].sent||0)-(a[1].orig||a[1].sent||0);
   const entries=Object.entries(data).sort(sortFn||defaultSort);
   if(!entries.length)return;
   const totalOrig=entries.reduce((s,[,v])=>s+(v.orig||v.sent||0),0);
   const totalRec=entries.reduce((s,[,v])=>s+v.rec,0);
-  const el=document.getElementById(metaId);if(el)el.textContent=`${totalRec.toLocaleString()} rec. · ${totalOrig.toLocaleString()} orig.`;
+  const el=document.getElementById(metaId);
+  if(el)el.textContent=showRatio?`${totalRec.toLocaleString()} rec. · ${totalOrig.toLocaleString()} orig.`:`${totalRec.toLocaleString()} recuperados`;
   const labels=entries.map(([k])=>k);
   const vals=entries.map(([,v])=>v.rec);
   const cols=pal.slice(0,labels.length);
@@ -710,12 +736,13 @@ function buildBreakdownCard(data,chartId,rowsId,metaId,pal,sortFn){
   const ctx=document.getElementById(chartId);if(!ctx)return;
   _bdInst[chartId]=new Chart(ctx.getContext('2d'),{type:'doughnut',data:{labels,datasets:[{data:vals,backgroundColor:cols,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(31,85,86,.95)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',callbacks:{label:i=>` ${i.label}: ${i.raw} (${totalRec>0?(i.raw/totalRec*100).toFixed(1):'0'}%)`}}}}});
   const rowsEl=document.getElementById(rowsId);if(!rowsEl)return;
-  let html=`<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:3px 8px;font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;padding-bottom:5px;border-bottom:1px solid rgba(31,85,86,.1);"><span></span><span style="text-align:right;">Orig.</span><span style="text-align:right;">Rec.</span><span style="text-align:right;">%&nbsp;Rec/Orig</span></div>`;
+  const gridCols=showRatio?'1fr auto auto auto':'1fr auto';
+  let html=`<div style="display:grid;grid-template-columns:${gridCols};gap:3px 8px;font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;padding-bottom:5px;border-bottom:1px solid rgba(31,85,86,.1);"><span></span>${showRatio?'<span style="text-align:right;">Orig.</span>':''}<span style="text-align:right;">Rec.</span>${showRatio?'<span style="text-align:right;">%&nbsp;Rec/Orig</span>':''}</div>`;
   entries.forEach(([k,v],i)=>{
     const orig=v.orig||v.sent||0;
     const pct=orig>0?(v.rec/orig*100).toFixed(1)+'%':'—';
     const border=i<entries.length-1?'border-bottom:1px solid rgba(31,85,86,.07);':'';
-    html+=`<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:3px 8px;align-items:center;padding:5px 0;${border}"><div class="stat-name"><div class="stat-dot" style="background:${pal[i%pal.length]};"></div>${k}</div><span style="font-size:10px;font-weight:600;color:var(--text3);text-align:right;">${orig.toLocaleString()}</span><span style="font-size:11px;font-weight:700;color:var(--text);text-align:right;">${v.rec.toLocaleString()}</span><span class="stat-pct pos" style="text-align:right;">${pct}</span></div>`;
+    html+=`<div style="display:grid;grid-template-columns:${gridCols};gap:3px 8px;align-items:center;padding:5px 0;${border}"><div class="stat-name"><div class="stat-dot" style="background:${pal[i%pal.length]};"></div>${k}</div>${showRatio?`<span style="font-size:10px;font-weight:600;color:var(--text3);text-align:right;">${orig.toLocaleString()}</span>`:''}<span style="font-size:11px;font-weight:700;color:var(--text);text-align:right;">${v.rec.toLocaleString()}</span>${showRatio?`<span class="stat-pct pos" style="text-align:right;">${pct}</span>`:''}</div>`;
   });
   rowsEl.innerHTML=html;
 }
@@ -731,7 +758,7 @@ function setHmFilter(type,val){
     VD_CURRENT=VD; COSECHA_TABLE_CURRENT=COSECHA_TABLE;
     HM_FILTER_TYPE=null; HM_FILTER_VAL=null;
   }
-  document.querySelectorAll('.hm-filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.type===HM_FILTER_TYPE&&b.dataset.val===HM_FILTER_VAL));
+  document.querySelectorAll('.hm-filter-btn').forEach(b=>b.classList.toggle('active',!!HM_FILTER_TYPE&&b.dataset.type===HM_FILTER_TYPE&&b.dataset.val===HM_FILTER_VAL));
   const badge=document.getElementById('tbl-filter-badge');
   if(badge){if(HM_FILTER_TYPE&&HM_FILTER_VAL){badge.textContent=HM_FILTER_VAL;badge.style.display='inline-block';}else{badge.style.display='none';}}
   buildHeatmap(); buildTable(); buildOrigRates(); buildCosechaBar();
@@ -979,9 +1006,9 @@ window.addEventListener('load',async()=>{
   const pd=window._platData||[737,241];
   buildDonut('platChart',['UBER','DIDI'],pd,['#11ABAB','#1F5556']);
   buildEstado();
-  buildBreakdownCard(TECH_BD,'techChart','tech-rows','tech-meta',BD_PAL_TECH);
-  buildBreakdownCard(ANIO_BD,'anioChart','anio-rows','anio-meta',BD_PAL_ANIO,(a,b)=>Number(a[0])-Number(b[0]));
-  buildBreakdownCard(CAT_BD,'catChart','cat-rows','cat-meta',BD_PAL_CAT);
+  buildBreakdownCard(TECH_BD,'techChart','tech-rows','tech-meta',BD_PAL_TECH,null,true);
+  buildBreakdownCard(ANIO_BD,'anioChart','anio-rows','anio-meta',BD_PAL_ANIO,(a,b)=>Number(a[0])-Number(b[0]),false);
+  buildBreakdownCard(CAT_BD,'catChart','cat-rows','cat-meta',BD_PAL_CAT,null,false);
   buildHeatmap();
 });
 </script>
