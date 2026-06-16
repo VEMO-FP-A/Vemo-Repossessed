@@ -216,7 +216,7 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
     <div class="chart-card-body" style="padding:12px 16px 16px;">
       <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px;padding:8px 12px;background:rgba(31,85,86,.04);border-radius:8px;border:1px solid rgba(31,85,86,.1);">
         <div class="hm-filter-grp">
-          <span class="hm-filter-grp-label">Plataforma</span>
+          <span class="hm-filter-grp-label">Platform</span>
           <button class="hm-filter-btn" data-type="plat" data-val="UBER" onclick="setHmFilter('plat','UBER')">UBER</button>
           <button class="hm-filter-btn" data-type="plat" data-val="DIDI" onclick="setHmFilter('plat','DIDI')">DIDI</button>
         </div>
@@ -313,7 +313,7 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
   </div>
   <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px;padding:8px 12px;background:rgba(31,85,86,.04);border-radius:8px;border:1px solid rgba(31,85,86,.1);">
     <div class="hm-filter-grp">
-      <span class="hm-filter-grp-label">Plataforma</span>
+      <span class="hm-filter-grp-label">Platform</span>
       <button class="hm-filter-btn tbl-hm-btn" data-type="plat" data-val="UBER" onclick="setHmFilter('plat','UBER')">UBER</button>
       <button class="hm-filter-btn tbl-hm-btn" data-type="plat" data-val="DIDI" onclick="setHmFilter('plat','DIDI')">DIDI</button>
     </div>
@@ -682,37 +682,54 @@ function buildPlatRows(){
   const plats=['UBER','DIDI'];
   const el=document.getElementById('plat-rows');
   if(!el)return;
-  el.innerHTML=plats.map((p,i)=>{
+  const curActiva=getCurActiva();
+  const showActive=curActiva>0;
+  const gridCols=showActive?'1fr auto auto auto auto':'1fr auto auto auto';
+  // Header row
+  let html=`<div style="display:grid;grid-template-columns:${gridCols};gap:3px 8px;font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;padding-bottom:5px;border-bottom:1px solid rgba(31,85,86,.1);">
+    <span></span><span style="text-align:right;">Orig.</span><span style="text-align:right;">Rec.</span><span style="text-align:right;">%&nbsp;Rec/Orig</span>${showActive?'<span style="text-align:right;">%&nbsp;/&nbsp;Fleet</span>':''}
+  </div>`;
+  plats.forEach((p,i)=>{
     const rec=window._platTotals&&window._platTotals[p]||[750,252][i];
     const orig=PLAT_SENT[p]||0;
-    const pct=orig>0?(rec/orig*100).toFixed(1)+'%':'—';
+    const pctOrig=orig>0?(rec/orig*100).toFixed(1)+'%':'—';
+    const pctActive=curActiva>0?(rec/curActiva*100).toFixed(1)+'%':'—';
     const border=i<plats.length-1?'border-bottom:1px solid rgba(31,85,86,.07);':'';
-    return `<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:3px 8px;align-items:center;padding:6px 0;${border}">
+    html+=`<div style="display:grid;grid-template-columns:${gridCols};gap:3px 8px;align-items:center;padding:6px 0;${border}">
       <div class="stat-name"><div class="stat-dot" style="background:${platColors[p]};"></div>${p}</div>
       <span style="font-size:11px;font-weight:600;color:var(--text3);text-align:right;">${orig.toLocaleString()}</span>
       <span style="font-size:12px;font-weight:700;color:var(--text);text-align:right;">${rec.toLocaleString()}</span>
-      <span class="stat-pct pos" style="text-align:right;">${pct}</span>
+      <span class="stat-pct pos" style="text-align:right;">${pctOrig}</span>
+      ${showActive?`<span style="font-size:10px;font-weight:600;color:#8a9a9a;text-align:right;">${pctActive}</span>`:''}
     </div>`;
-  }).join('');
+  });
+  el.innerHTML=html;
   const totalRec=plats.reduce((a,p)=>a+(window._platTotals&&window._platTotals[p]||0),0)||1002;
   const totalOrig=plats.reduce((a,p)=>a+(PLAT_SENT[p]||0),0)||1357;
+  const activaPct=curActiva>0?(totalRec/curActiva*100).toFixed(1)+'% of fleet':'';
   const metaEl=document.getElementById('plat-meta');
-  if(metaEl) metaEl.textContent=`${totalRec.toLocaleString()} collected · ${totalOrig.toLocaleString()} originated`;
+  if(metaEl) metaEl.textContent=`${totalRec.toLocaleString()} collected · ${totalOrig.toLocaleString()} originated${activaPct?' · '+activaPct:''}`;
 }
 // ── BREAKDOWN CARDS (Tech / Año Modelo / Categoría) ──────────────────────────
 const BD_PAL_TECH=['#1F5556','#11ABAB','#4a9898','#8ac8c8'];
 const BD_PAL_ANIO=['#11ABAB','#1F5556','#d4830a','#4a9898','#8ac8c8'];
 const BD_PAL_CAT =['#11ABAB','#1F5556','#4a9898','#d4830a','#8ac8c8','#b8dede'];
 const _bdInst={};
+function getCurActiva(){
+  if(N_ACTIVA[LAST_DATA_MONTH])return N_ACTIVA[LAST_DATA_MONTH];
+  const vals=Object.values(N_ACTIVA);
+  return vals.length?Math.max(...vals):0;
+}
 function buildBreakdownCard(data,chartId,rowsId,metaId,pal,sortFn,showRatio){
   if(showRatio===undefined)showRatio=true;
-  // showRatio===true  → Orig. | Rec. | % Rec/Orig  (Platform & Tech — real originations)
-  // showRatio==='sent'→ Env.  | Rec. | % Rec/Env   (Año & Cat — no orig data, use sent)
-  // showRatio===false → Rec. only (unused but kept for safety)
+  // showRatio===true  → Orig. | Rec. | % Rec/Orig | % Rec/Active  (Platform & Tech)
+  // showRatio==='sent'→ Sent  | Rec. | % Rec/Sent | % Rec/Active  (Model Year & Category)
+  // showRatio===false → Rec. only
   const hasRatio=showRatio===true||showRatio==='sent';
-  const origLabel=showRatio==='sent'?'Env.':'Orig.';
-  const ratioLabel=showRatio==='sent'?'%&nbsp;Rec/Env':'%&nbsp;Rec/Orig';
+  const baseLabel=showRatio==='sent'?'Sent':'Orig.';
+  const ratioLabel=showRatio==='sent'?'%&nbsp;Rec/Sent':'%&nbsp;Rec/Orig';
   const getBase=v=>showRatio==='sent'?(v.sent||0):(v.orig||v.sent||0);
+  const curActiva=getCurActiva();
   const defaultSort=(a,b)=>getBase(b[1])-getBase(a[1]);
   const entries=Object.entries(data).sort(sortFn||defaultSort);
   if(!entries.length)return;
@@ -720,9 +737,10 @@ function buildBreakdownCard(data,chartId,rowsId,metaId,pal,sortFn,showRatio){
   const totalRec=entries.reduce((s,[,v])=>s+v.rec,0);
   const el=document.getElementById(metaId);
   if(el){
-    if(showRatio===true)el.textContent=`${totalRec.toLocaleString()} rec. · ${totalBase.toLocaleString()} orig.`;
-    else if(showRatio==='sent')el.textContent=`${totalRec.toLocaleString()} rec. · ${totalBase.toLocaleString()} env. · ${totalBase>0?(totalRec/totalBase*100).toFixed(1)+'%':'—'}`;
-    else el.textContent=`${totalRec.toLocaleString()} recuperados`;
+    const activaPct=curActiva>0?(totalRec/curActiva*100).toFixed(1)+'% of fleet':'';
+    if(showRatio===true)el.textContent=`${totalRec.toLocaleString()} rec. · ${totalBase.toLocaleString()} orig.${activaPct?' · '+activaPct:''}`;
+    else if(showRatio==='sent')el.textContent=`${totalRec.toLocaleString()} rec. · ${totalBase.toLocaleString()} sent · ${totalBase>0?(totalRec/totalBase*100).toFixed(1)+'%':'—'}${activaPct?' · '+activaPct:''}`;
+    else el.textContent=`${totalRec.toLocaleString()} repossessed`;
   }
   const labels=entries.map(([k])=>k);
   const vals=entries.map(([,v])=>v.rec);
@@ -731,13 +749,24 @@ function buildBreakdownCard(data,chartId,rowsId,metaId,pal,sortFn,showRatio){
   const ctx=document.getElementById(chartId);if(!ctx)return;
   _bdInst[chartId]=new Chart(ctx.getContext('2d'),{type:'doughnut',data:{labels,datasets:[{data:vals,backgroundColor:cols,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(31,85,86,.95)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',callbacks:{label:i=>` ${i.label}: ${i.raw} (${totalRec>0?(i.raw/totalRec*100).toFixed(1):'0'}%)`}}}}});
   const rowsEl=document.getElementById(rowsId);if(!rowsEl)return;
-  const gridCols=hasRatio?'1fr auto auto auto':'1fr auto';
-  let html=`<div style="display:grid;grid-template-columns:${gridCols};gap:3px 8px;font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;padding-bottom:5px;border-bottom:1px solid rgba(31,85,86,.1);"><span></span>${hasRatio?`<span style="text-align:right;">${origLabel}</span>`:''}<span style="text-align:right;">Rec.</span>${hasRatio?`<span style="text-align:right;">${ratioLabel}</span>`:''}</div>`;
+  // 5-col when hasRatio+activeFleet: Name | Base | Rec | %Rec/Base | %Rec/Active
+  const gridCols=hasRatio&&curActiva>0?'1fr auto auto auto auto':hasRatio?'1fr auto auto auto':'1fr auto';
+  const showActive=hasRatio&&curActiva>0;
+  let html=`<div style="display:grid;grid-template-columns:${gridCols};gap:3px 8px;font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;padding-bottom:5px;border-bottom:1px solid rgba(31,85,86,.1);">
+    <span></span>${hasRatio?`<span style="text-align:right;">${baseLabel}</span>`:''}<span style="text-align:right;">Rec.</span>${hasRatio?`<span style="text-align:right;">${ratioLabel}</span>`:''}${showActive?'<span style="text-align:right;">%&nbsp;/&nbsp;Fleet</span>':''}
+  </div>`;
   entries.forEach(([k,v],i)=>{
     const base=getBase(v);
-    const pct=base>0?(v.rec/base*100).toFixed(1)+'%':'—';
+    const pctBase=base>0?(v.rec/base*100).toFixed(1)+'%':'—';
+    const pctActive=curActiva>0?(v.rec/curActiva*100).toFixed(1)+'%':'—';
     const border=i<entries.length-1?'border-bottom:1px solid rgba(31,85,86,.07);':'';
-    html+=`<div style="display:grid;grid-template-columns:${gridCols};gap:3px 8px;align-items:center;padding:5px 0;${border}"><div class="stat-name"><div class="stat-dot" style="background:${pal[i%pal.length]};"></div>${k}</div>${hasRatio?`<span style="font-size:10px;font-weight:600;color:var(--text3);text-align:right;">${base.toLocaleString()}</span>`:''}<span style="font-size:11px;font-weight:700;color:var(--text);text-align:right;">${v.rec.toLocaleString()}</span>${hasRatio?`<span class="stat-pct pos" style="text-align:right;">${pct}</span>`:''}</div>`;
+    html+=`<div style="display:grid;grid-template-columns:${gridCols};gap:3px 8px;align-items:center;padding:5px 0;${border}">
+      <div class="stat-name"><div class="stat-dot" style="background:${pal[i%pal.length]};"></div>${k}</div>
+      ${hasRatio?`<span style="font-size:10px;font-weight:600;color:var(--text3);text-align:right;">${base.toLocaleString()}</span>`:''}
+      <span style="font-size:11px;font-weight:700;color:var(--text);text-align:right;">${v.rec.toLocaleString()}</span>
+      ${hasRatio?`<span class="stat-pct pos" style="text-align:right;">${pctBase}</span>`:''}
+      ${showActive?`<span style="font-size:10px;font-weight:600;color:#8a9a9a;text-align:right;">${pctActive}</span>`:''}
+    </div>`;
   });
   rowsEl.innerHTML=html;
 }
