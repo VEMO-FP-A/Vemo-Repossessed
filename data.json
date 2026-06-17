@@ -2522,51 +2522,42 @@
   },
   "anioBreakdown": {
     "2022": {
-      "orig": 295,
       "sent": 17,
       "rec": 10
     },
     "2023": {
-      "orig": 457,
       "sent": 50,
       "rec": 33
     },
     "2024": {
-      "orig": 1229,
       "sent": 277,
       "rec": 204
     },
     "2025": {
-      "orig": 2409,
       "sent": 777,
       "rec": 579
     },
     "2026": {
-      "orig": 1415,
       "sent": 236,
       "rec": 176
     }
   },
   "catBreakdown": {
-    "SEDAN": {
-      "orig": 4154,
-      "sent": 488,
-      "rec": 348
-    },
     "PREMIUM": {
-      "orig": 1840,
       "sent": 533,
       "rec": 407
     },
-    "MINI SUV": {
-      "orig": 1507,
-      "sent": 106,
-      "rec": 76
+    "SEDAN": {
+      "sent": 488,
+      "rec": 348
     },
     "LIGHT": {
-      "orig": 979,
       "sent": 230,
       "rec": 171
+    },
+    "MINI SUV": {
+      "sent": 106,
+      "rec": 76
     }
   },
   "vdByFilter": {
@@ -16555,5 +16546,5 @@
       "04-2026": 0
     }
   },
-  "generated": "2026-06-16T18:09:37.741644Z"
+  "generated": "2026-06-17T18:04:40.018607Z"
 }
