@@ -136,7 +136,7 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
       <div class="kpi-bar" style="background:rgba(31,85,86,.12);"><div style="width:100%;height:100%;background:var(--forest);border-radius:2px;"></div></div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Effectively Collected</div>
+      <div class="kpi-label">Effectively Repossessed</div>
       <div class="kpi-value" style="color:var(--teal);" id="kpi-repos">1,002</div>
       <div class="kpi-sub">Units effectively recovered</div>
       <div class="kpi-bar" style="background:rgba(17,171,171,.12);"><div id="kpi-repos-bar" style="width:73.8%;height:100%;background:var(--teal);border-radius:2px;"></div></div>
@@ -144,7 +144,7 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
     <div class="kpi-card">
       <div class="kpi-label">Repossession Rate</div>
       <div class="kpi-value" style="color:var(--green);" id="kpi-pct">73.8%</div>
-      <div class="kpi-sub">Collected / total sent</div>
+      <div class="kpi-sub">Repossessed / total sent</div>
       <div class="kpi-bar" style="background:rgba(26,122,74,.1);"><div id="kpi-pct-bar" style="width:73.8%;height:100%;background:var(--green);border-radius:2px;"></div></div>
     </div>
     <div class="kpi-card">
@@ -181,7 +181,7 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
   <div class="chart-card" style="margin-bottom:28px;">
     <div class="chart-card-head forest" style="gap:12px;flex-wrap:wrap;">
       <div>
-        <div class="chart-card-title">Cumulative % collected per cohort at each month</div>
+        <div class="chart-card-title">Cumulative % repossessed per cohort at each month</div>
         <div class="chart-card-meta">Hover over each cell for the exact fraction</div>
       </div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
@@ -249,13 +249,13 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
 
   <!-- VINTAGE CURVE -->
   <div class="section-head">
-    <span>Vintage Curve — Cumulative % Collected by Cohort</span>
-    <span class="section-note">Tooltip: % collected at month M</span>
+    <span>Vintage Curve — Cumulative % Repossessed by Cohort</span>
+    <span class="section-note">Tooltip: % repossessed at month M</span>
   </div>
   <div class="chart-card">
     <div class="chart-card-head forest" style="gap:12px;flex-wrap:wrap;">
       <div>
-        <div class="chart-card-title">Cumulative fraction collected per cohort (% of that cohort's total)</div>
+        <div class="chart-card-title">Cumulative fraction repossessed per cohort (% of that cohort's total)</div>
         <div class="chart-card-meta">X axis = months since origination · axis adjusts to last active month</div>
       </div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
@@ -352,13 +352,13 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
 
   <!-- COSECHA BAR -->
   <div class="section-head">
-    <span>Cohorts — Contracts Sent vs Effectively Collected</span>
+    <span>Cohorts — Contracts Sent vs Effectively Repossessed</span>
     <span class="section-note">Cohorts 2024+ with ≥5 contracts</span>
   </div>
   <div class="chart-card" style="margin-bottom:16px;">
     <div class="chart-card-head" style="gap:12px;flex-wrap:wrap;">
       <div>
-        <div class="chart-card-title">Sent to Recovery vs Collected by cohort</div>
+        <div class="chart-card-title">Sent to Recovery vs Repossessed by cohort</div>
         <div class="chart-card-meta">Grouped bars</div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;">
@@ -411,7 +411,7 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
   </div>
   <div class="grid-3" style="grid-template-columns:1fr 1fr;margin-bottom:16px;">
     <div class="chart-card" style="margin-bottom:0;">
-      <div class="chart-card-head"><div class="chart-card-title">By Platform</div><div class="chart-card-meta" id="plat-meta">1,002 collected · 1,357 originated</div></div>
+      <div class="chart-card-head"><div class="chart-card-title">By Platform</div><div class="chart-card-meta" id="plat-meta">1,002 repossessed · 1,357 originated</div></div>
       <div class="chart-card-body">
         <div style="position:relative;height:130px;display:flex;justify-content:center;"><canvas id="platChart"></canvas></div>
         <div style="margin-top:10px;">
@@ -708,7 +708,7 @@ function buildPlatRows(){
   const totalOrig=plats.reduce((a,p)=>a+(PLAT_SENT[p]||0),0)||1357;
   const activaPct=curActiva>0?(totalRec/curActiva*100).toFixed(1)+'% of fleet':'';
   const metaEl=document.getElementById('plat-meta');
-  if(metaEl) metaEl.textContent=`${totalRec.toLocaleString()} collected · ${totalOrig.toLocaleString()} originated${activaPct?' · '+activaPct:''}`;
+  if(metaEl) metaEl.textContent=`${totalRec.toLocaleString()} repossessed · ${totalOrig.toLocaleString()} originated${activaPct?' · '+activaPct:''}`;
 }
 // ── BREAKDOWN CARDS (Tech / Año Modelo / Categoría) ──────────────────────────
 const BD_PAL_TECH=['#1F5556','#11ABAB','#4a9898','#8ac8c8'];
