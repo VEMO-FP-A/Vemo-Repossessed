@@ -157,18 +157,18 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
   <div class="grid-3" style="margin-top:-12px;">
     <div style="background:var(--white);border:1px solid rgba(31,85,86,.12);border-radius:6px;padding:14px 16px;">
       <div class="kpi-label" style="margin-bottom:6px;">Pending</div>
-      <div style="font-size:20px;font-weight:800;color:var(--amber);">206</div>
-      <div class="kpi-sub">16.0% of portfolio</div>
+      <div id="kpi-pending" style="font-size:20px;font-weight:800;color:var(--amber);">—</div>
+      <div id="kpi-pending-sub" class="kpi-sub"></div>
     </div>
     <div style="background:var(--white);border:1px solid rgba(31,85,86,.12);border-radius:6px;padding:14px 16px;">
       <div class="kpi-label" style="margin-bottom:6px;">Cancelled</div>
-      <div style="font-size:20px;font-weight:800;color:var(--red);">105</div>
-      <div class="kpi-sub">8.1% of portfolio</div>
+      <div id="kpi-cancelled" style="font-size:20px;font-weight:800;color:var(--red);">—</div>
+      <div id="kpi-cancelled-sub" class="kpi-sub"></div>
     </div>
     <div style="background:var(--white);border:1px solid rgba(31,85,86,.12);border-radius:6px;padding:14px 16px;">
       <div class="kpi-label" style="margin-bottom:6px;">Active Cohorts (2024+)</div>
-      <div style="font-size:20px;font-weight:800;color:var(--forest);">39</div>
-      <div class="kpi-sub">Jan 2024 – Apr 2026</div>
+      <div id="kpi-cohorts" style="font-size:20px;font-weight:800;color:var(--forest);">—</div>
+      <div id="kpi-cohorts-sub" class="kpi-sub"></div>
     </div>
   </div>
   <hr class="divider">
@@ -1030,6 +1030,28 @@ window.addEventListener('load',async()=>{
       const ae=document.getElementById('kpi-avg');if(ae)ae.textContent=k.avgMonths.toFixed(1)+' m';
       const rb=document.getElementById('kpi-repos-bar');if(rb)rb.style.width=k.pct+'%';
       const pb=document.getElementById('kpi-pct-bar');if(pb)pb.style.width=k.pct+'%';
+    }
+    // Pending / Cancelled / Active Cohorts — computed from cosechaTable
+    if(d.cosechaTable && d.cosechaTable.length){
+      const tbl=d.cosechaTable;
+      const totSent=tbl.reduce((s,r)=>s+(r.t||0),0);
+      const totPend=tbl.reduce((s,r)=>s+(r.p||0),0);
+      const totCancel=tbl.reduce((s,r)=>s+(r.t||0)-(r.ca||0)-(r.p||0),0);
+      const pPct=totSent?((totPend/totSent)*100).toFixed(1)+'% of portfolio':'';
+      const cPct=totSent?((totCancel/totSent)*100).toFixed(1)+'% of portfolio':'';
+      const pe2=document.getElementById('kpi-pending');if(pe2)pe2.textContent=totPend.toLocaleString();
+      const ps=document.getElementById('kpi-pending-sub');if(ps)ps.textContent=pPct;
+      const ce=document.getElementById('kpi-cancelled');if(ce)ce.textContent=totCancel.toLocaleString();
+      const cs=document.getElementById('kpi-cancelled-sub');if(cs)cs.textContent=cPct;
+      // Active Cohorts 2024+
+      const MONTHS_ES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const active2024=tbl.filter(r=>{const yr=r.c.split('-')[1];return parseInt(yr)>=2024 && r.t>0;});
+      const ce2=document.getElementById('kpi-cohorts');if(ce2)ce2.textContent=active2024.length;
+      if(active2024.length){
+        const first=active2024[0].c,last=active2024[active2024.length-1].c;
+        const fmt=c=>{const[mm,yy]=c.split('-');return MONTHS_ES[parseInt(mm)-1]+' '+yy;};
+        const cs2=document.getElementById('kpi-cohorts-sub');if(cs2)cs2.textContent=fmt(first)+' – '+fmt(last);
+      }
     }
     const ts=d.generated?new Date(d.generated).toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}):null;
     if(ts){const el=document.getElementById('data-ts');if(el)el.textContent='Datos: '+ts;}
