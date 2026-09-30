@@ -335,7 +335,7 @@ tr.tr-total td:first-child{background:rgba(17,171,171,.08);}
   <div class="tbl-outer">
     <table class="dt">
       <thead><tr>
-        <th>Cohort</th><th>Originations</th><th id="th-activa-col" style="display:none;">Active Units</th><th>Sent to Recovery</th><th>Repossessed</th><th>Pending</th><th>% Repossessed</th><th id="th-sent-denom">% Sent / Orig</th><th id="th-reposs-denom">% Reposs / Orig</th>
+        <th>Cohort</th><th>Originations</th><th id="th-activa-col" style="display:none;">Active Units</th><th>Sent to Recovery</th><th>Repossessed</th><th>Pending</th><th>% Repossessed</th><th id="th-sent-denom">% Sent / Orig</th><th id="th-reposs-denom">% Reposs / Orig</th><th title="Average months from sent-to-recovery to effectively repossessed">Avg. Recovery</th>
       </tr></thead>
       <tbody id="cosechaTableBody"></tbody>
     </table>
@@ -889,20 +889,21 @@ function buildTable(){
   let rows=[];
   if(tblGrouping==='monthly'){
     rows=allRows.map(d=>({
-      label:d.c,t:d.t,ca:d.ca,p:d.p,
+      label:d.c,t:d.t,ca:d.ca,p:d.p,avgM:d.avgM!=null?d.avgM:null,
       nOrig:hasFilterOrig?(filterOrigMap[d.c]||0):d.nOrig
     })).sort((a,b)=>cosSort(a.label,b.label));
   } else {
     const qMap={};
     allRows.forEach(d=>{
       const q=getQ(d.c);
-      if(!qMap[q])qMap[q]={label:q,t:0,ca:0,p:0,_hasP:false,nOrig:0};
+      if(!qMap[q])qMap[q]={label:q,t:0,ca:0,p:0,_hasP:false,nOrig:0,_avgMSum:0,_avgMCa:0};
       qMap[q].t+=d.t;qMap[q].ca+=d.ca;
       if(d.p!==undefined&&d.p!==null){qMap[q].p+=(+d.p||0);qMap[q]._hasP=true;}
       const cohortOrig=hasFilterOrig?(filterOrigMap[d.c]||0):(d.nOrig||0);
       qMap[q].nOrig+=cohortOrig;
+      if(d.avgM!=null&&d.ca>0){qMap[q]._avgMSum+=d.avgM*d.ca;qMap[q]._avgMCa+=d.ca;}
     });
-    rows=Object.keys(qMap).sort((a,b)=>{const[qa,ya]=a.split('-');const[qb,yb]=b.split('-');return parseInt(ya)!==parseInt(yb)?parseInt(ya)-parseInt(yb):parseInt(qa.slice(1))-parseInt(qb.slice(1));}).map(k=>{const r=qMap[k];return{label:r.label,t:r.t,ca:r.ca,p:r._hasP?r.p:undefined,nOrig:r.nOrig};});
+    rows=Object.keys(qMap).sort((a,b)=>{const[qa,ya]=a.split('-');const[qb,yb]=b.split('-');return parseInt(ya)!==parseInt(yb)?parseInt(ya)-parseInt(yb):parseInt(qa.slice(1))-parseInt(qb.slice(1));}).map(k=>{const r=qMap[k];return{label:r.label,t:r.t,ca:r.ca,p:r._hasP?r.p:undefined,nOrig:r.nOrig,avgM:r._avgMCa>0?Math.round(r._avgMSum/r._avgMCa*10)/10:null};});
   }
   // When filter is active but no per-filter orig data exists, show "—" for orig
   const showOrig=!filtered||hasFilterOrig;
@@ -922,7 +923,8 @@ function buildTable(){
     const pendCell=(r.p!==undefined&&r.p!==null)?`<td>${r.p}</td>`:'<td style="color:var(--text3);">—</td>';
     const sentPctCell=sentPct!==null?pctCellInv(sentPct):`<span style="color:var(--text3);">—</span>`;
     const recOrigPctCell=recOrigPct!==null?pctCellInv(recOrigPct):`<span style="color:var(--text3);">—</span>`;
-    html+=`<tr><td>${r.label}</td>${origCell}${activaCell}<td>${r.t}</td><td>${r.ca}</td>${pendCell}<td>${pctCell(recPct)}</td><td>${sentPctCell}</td><td>${recOrigPctCell}</td></tr>`;
+    const avgMCell=r.avgM!=null?`<td style="color:#1F5556;font-weight:600;">${r.avgM} m</td>`:'<td style="color:var(--text3);">—</td>';
+    html+=`<tr><td>${r.label}</td>${origCell}${activaCell}<td>${r.t}</td><td>${r.ca}</td>${pendCell}<td>${pctCell(recPct)}</td><td>${sentPctCell}</td><td>${recOrigPctCell}</td>${avgMCell}</tr>`;
   });
   const totRecPct=totT>0?totCa/totT*100:0;
   const _totDen=tblDenom==='activa'?rows.reduce((s,r)=>s+(N_ACTIVA[r.label]||r.nOrig||0),0):totOrig;
@@ -934,7 +936,8 @@ function buildTable(){
   const totPendCell=hasPCol?`<td>${totP}</td>`:'<td style="color:var(--text3);">—</td>';
   const totSentCell=totSentPct!==null?pctCellInv(totSentPct):`<span style="color:var(--text3);">—</span>`;
   const totRecOrigCell=totRecOrigPct!==null?pctCellInv(totRecOrigPct):`<span style="color:var(--text3);">—</span>`;
-  html+=`<tr class="tr-total"><td>Total</td>${totOrigCell}${totalActivaCell}<td>${totT}</td><td>${totCa}</td>${totPendCell}<td>${pctCell(totRecPct)}</td><td>${totSentCell}</td><td>${totRecOrigCell}</td></tr>`;
+  const totAvgMNum=rows.reduce((s,r)=>s+(r.avgM!=null&&r.ca>0?r.avgM*r.ca:0),0);const totAvgMDen=rows.reduce((s,r)=>s+(r.ca>0&&r.avgM!=null?r.ca:0),0);const totAvgMCell=totAvgMDen>0?`<td style="color:#1F5556;font-weight:700;">${(totAvgMNum/totAvgMDen).toFixed(1)} m</td>`:'<td style="color:var(--text3);">—</td>';
+  html+=`<tr class="tr-total"><td>Total</td>${totOrigCell}${totalActivaCell}<td>${totT}</td><td>${totCa}</td>${totPendCell}<td>${pctCell(totRecPct)}</td><td>${totSentCell}</td><td>${totRecOrigCell}</td>${totAvgMCell}</tr>`;
   document.getElementById('cosechaTableBody').innerHTML=html;
 }
 // ── ORIG RATES ────────────────────────────────────────────────────────────────
